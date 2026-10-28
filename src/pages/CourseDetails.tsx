@@ -27,6 +27,7 @@ import {
 import type { CSSProperties } from "react";
 import { courses } from "../data/courses";
 import {
+  Accordion,
   ButtonLink,
   CourseCard,
   TechIcon,
@@ -755,19 +756,7 @@ export default function CourseDetails() {
               <h2>{copy("Frequently asked questions.", "الأسئلة الشائعة حول الكورس.")}</h2>
             </Reveal>
 
-            <div className="course-faq-list">
-              {faq.slice(0, 6).map((item, i) => (
-                <details key={i} className="course-faq-item">
-                  <summary className="course-faq-summary">
-                    <span>{local(item.q)}</span>
-                    <HelpCircle size={18} className="faq-chevron-icon" />
-                  </summary>
-                  <div className="course-faq-content">
-                    <p>{local(item.a)}</p>
-                  </div>
-                </details>
-              ))}
-            </div>
+            <Accordion items={faq.slice(0, 6)} className="course-accordion" />
           </section>
         </div>
 

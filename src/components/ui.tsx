@@ -1,3 +1,5 @@
+import { useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -8,8 +10,7 @@ import {
   Layers3,
   Plus,
 } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
-import type { CSSProperties, ReactNode } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { Course, Localized } from "../data/courses";
 export function useCopy() {
   const { i18n, t } = useTranslation();
@@ -180,21 +181,76 @@ export function CourseCard({ course }: { course: Course }) {
 }
 export function Accordion({
   items,
+  className = "",
 }: {
   items: { q: Localized; a: Localized }[];
+  className?: string;
 }) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
   const { local } = useCopy();
+  const reduce = useReducedMotion();
+
+  const toggle = (index: number) => {
+    // If clicking the currently open item, close it. Otherwise open the new one and close the rest.
+    setOpenIndex((current) => (current === index ? null : index));
+  };
+
   return (
-    <div className="accordion">
-      {items.map((item, i) => (
-        <details key={i}>
-          <summary>
-            {local(item.q)}
-            <Plus size={18} />
-          </summary>
-          <p>{local(item.a)}</p>
-        </details>
-      ))}
+    <div className={`accordion ${className}`}>
+      {items.map((item, i) => {
+        const isOpen = openIndex === i;
+        const id = `faq-accordion-${i}`;
+        return (
+          <div
+            key={i}
+            className={`accordion-item ${isOpen ? "is-open" : ""}`}
+          >
+            <h3>
+              <button
+                type="button"
+                id={`${id}-trigger`}
+                aria-expanded={isOpen}
+                aria-controls={`${id}-content`}
+                onClick={() => toggle(i)}
+                className="accordion-trigger"
+              >
+                <span>{local(item.q)}</span>
+                <motion.span
+                  className="accordion-icon"
+                  animate={{ rotate: isOpen ? 45 : 0 }}
+                  transition={{
+                    duration: reduce ? 0 : 0.28,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                >
+                  <Plus size={18} />
+                </motion.span>
+              </button>
+            </h3>
+            <AnimatePresence initial={false}>
+              {isOpen && (
+                <motion.div
+                  id={`${id}-content`}
+                  role="region"
+                  aria-labelledby={`${id}-trigger`}
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{
+                    height: { duration: reduce ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] },
+                    opacity: { duration: reduce ? 0 : 0.25, ease: "easeInOut" },
+                  }}
+                  style={{ overflow: "hidden" }}
+                >
+                  <div className="accordion-content">
+                    <p>{local(item.a)}</p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
     </div>
   );
 }
