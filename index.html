@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0B0F19" />
+    <meta
+      name="description"
+      content="Learn programming step by step with live online courses at MindCode Academy."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="MindCode Academy" />
+    <meta
+      property="og:description"
+      content="Programming Minds. Brighter Futures."
+    />
+    <title>MindCode Academy</title>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "EducationalOrganization",
+        "name": "MindCode Academy",
+        "description": "Live online programming education with practical projects and structured learning paths.",
+        "knowsLanguage": ["en", "ar"]
+      }
+    </script>
+    <script>
+      try {
+        const lang =
+          localStorage.getItem("mindcode-language") === "ar" ? "ar" : "en";
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+        document.documentElement.dataset.theme =
+          localStorage.getItem("mindcode-theme") ||
+          (matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light");
+      } catch {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
