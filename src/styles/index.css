@@ -202,28 +202,66 @@ html {
   gap: 24px;
 }
 .brand {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+.brand:hover {
+  transform: translateY(-1px);
+}
+.brand-symbol-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, #1e1233 0%, #0d0a17 100%);
+  box-shadow: 0 2px 14px rgba(168, 85, 247, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, filter 0.35s ease;
   flex-shrink: 0;
 }
-.brand > svg {
-  width: 42px;
-  height: 42px;
-  color: var(--purple);
+.brand:hover .brand-symbol-wrapper {
+  transform: scale(1.06);
+  box-shadow: 0 4px 22px rgba(168, 85, 247, 0.6), inset 0 0 0 1px rgba(192, 132, 252, 0.4);
+  filter: brightness(1.1);
 }
-.brand > span {
-  font-size: 23px;
-  font-weight: 800;
-  letter-spacing: -0.9px;
+.brand-symbol-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   line-height: 1;
+}
+.brand-title {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.6px;
+  color: var(--text);
+  display: inline-flex;
+  align-items: baseline;
+}
+.brand-gradient {
+  background: linear-gradient(135deg, #a855f7 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-inline-start: 1px;
 }
 .brand-sub {
   display: block;
   font-size: 8px;
-  font-weight: 500;
-  letter-spacing: 0.39em;
-  margin-top: 7px;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+  color: var(--purple);
+  margin-top: 4px;
 }
 .desktop-nav {
   display: flex;
@@ -3776,3 +3814,40 @@ footer {
     transition: none !important;
   }
 }
+
+/* Brand & Logo Styles */
+:root[data-theme="light"] .brand-symbol-wrapper {
+  background: radial-gradient(circle at 35% 30%, #1a102e 0%, #0c0818 100%);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.22), inset 0 0 0 1px rgba(124, 58, 237, 0.25);
+}
+:root[data-theme="light"] .brand-title {
+  color: #0f172a;
+}
+:root[data-theme="light"] .brand-gradient {
+  background: linear-gradient(135deg, #7c3aed 0%, #9333ea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+:root[data-theme="light"] .brand-sub {
+  color: #7c3aed;
+}
+
+.brain-sphere .brand-symbol-wrapper {
+  border-radius: 30px;
+  box-shadow: 0 12px 48px rgba(168, 85, 247, 0.45), inset 0 0 0 1.5px rgba(192, 132, 252, 0.35);
+  animation: floatOrb 5.5s ease-in-out infinite;
+}
+.about-art .brand-symbol-wrapper {
+  border-radius: 28px;
+  box-shadow: 0 12px 45px rgba(168, 85, 247, 0.38), inset 0 0 0 1.5px rgba(192, 132, 252, 0.25);
+  animation: floatOrb 6.5s ease-in-out infinite;
+}
+@keyframes floatOrb {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1.2deg);
+  }
+}
+

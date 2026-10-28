@@ -32,7 +32,7 @@ export default function About() {
       </section>
       <section className="container about-story">
         <div className="about-art">
-          <BrainLogo />
+          <BrainLogo size={160} />
           <span>{"{ curiosity + code }"}</span>
         </div>
         <div>

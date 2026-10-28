@@ -18,7 +18,7 @@ export default function HeroVisual() {
       <span className="float-tag tag-html">&lt;html&gt;</span>
       <span className="float-tag tag-react">⚛ React</span>
       <div className="brain-sphere">
-        <BrainLogo />
+        <BrainLogo size={180} />
       </div>
       <div className="code-window" dir="ltr">
         <div className="window-bar">

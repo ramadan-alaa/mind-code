@@ -50,7 +50,7 @@ WhatsApp sending is disabled until a valid number is configured. Form validation
 - `src/components/ui.tsx`: shared logo, buttons, section headings, course cards, accessible accordions, motion wrapper, and localization helper.
 - `src/styles/index.css`: semantic theme tokens, responsive layouts, Arabic typography, and reduced-motion support.
 
-No approved logo file was supplied. The application uses an original lightweight SVG brain with integrated code brackets, following the requested brand direction. Replace `BrainLogo` in `src/components/ui.tsx` and `public/favicon.svg` with the final approved asset when supplied. The hero and sample project visuals use SVG/CSS; there are no heavy stock images or invented student photographs.
+The supplied brand artwork lives in `public/mindcode_logo_dark.png` and `public/mindcode_logo_light.png`. Shared logo components frame the original artwork for the navigation, footer, hero, and About page, switching automatically with the website theme. Browser favicons use the matching supplied image for the system color scheme. The original image files are preserved unchanged.
 
 ## Deploy
 

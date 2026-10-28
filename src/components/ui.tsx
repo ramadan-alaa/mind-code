@@ -41,32 +41,43 @@ export function Reveal({
     </motion.div>
   );
 }
+export function BrainLogo({
+  size = 40,
+  className = "",
+}: {
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <span
+      className={`brand-symbol-wrapper ${className}`}
+      style={{ width: size, height: size }}
+    >
+      <img
+        src="/logoM.png"
+        alt="MindCode Logo"
+        className="brand-symbol-img"
+        width={size}
+        height={size}
+        loading="eager"
+      />
+    </span>
+  );
+}
+
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
     <Link to="/" className="brand" aria-label="MindCode Academy">
-      <BrainLogo />
+      <BrainLogo size={38} />
       {!compact && (
-        <span>
-          mindcode<span className="brand-sub">ACADEMY</span>
+        <span className="brand-text">
+          <span className="brand-title">
+            Mind<span className="brand-gradient">Code</span>
+          </span>
+          <span className="brand-sub">ACADEMY</span>
         </span>
       )}
     </Link>
-  );
-}
-export function BrainLogo() {
-  return (
-    <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-      <g
-        stroke="currentColor"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M29 12c-6-6-14-1-14 6-8 0-11 10-7 15-6 7-1 17 7 17 1 9 13 10 17 3V15c0-7 11-8 15-1 8-1 12 6 10 12 7 4 7 13 2 17 2 9-6 15-13 12-5 6-14 3-14-3" />
-        <path d="M17 18c-1 5 1 8 6 9m-15 6 9 1m-2 16c-1-6 2-10 7-11m25-25c-5 3-6 7-3 11m13 1-8 5m10 12-9-2m-4 14c2-5 0-9-4-11" />
-        <path d="m26 29-7 5 7 5m12-10 7 5-7 5" />
-      </g>
-    </svg>
   );
 }
 export function SectionTitle({
