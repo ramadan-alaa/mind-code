@@ -20,9 +20,7 @@ import {
   Users,
   Laptop,
   Play,
-  HelpCircle,
   FileCode2,
-  ExternalLink,
 } from "lucide-react";
 import type { CSSProperties } from "react";
 import { courses } from "../data/courses";
