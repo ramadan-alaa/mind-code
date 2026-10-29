@@ -58,7 +58,7 @@ export function BrainLogo({
       style={{ width: size, height: size }}
     >
       <img
-        src="/logoM.png"
+        src="/brand-icon.svg"
         alt="MindCode Logo"
         className="brand-symbol-img"
         width={size}

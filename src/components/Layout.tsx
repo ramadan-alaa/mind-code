@@ -36,7 +36,7 @@ export default function Layout() {
     document.documentElement.dataset.theme = theme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#10141C" : "#F6F7FA");
+      ?.setAttribute("content", theme === "dark" ? "#16171C" : "#F4F4F7");
     try {
       localStorage.setItem("mindcode-theme", theme);
     } catch {

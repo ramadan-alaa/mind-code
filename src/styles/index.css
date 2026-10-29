@@ -1,24 +1,24 @@
 @import "tailwindcss";
 @theme {
   --font-sans: "Inter", sans-serif;
-  --color-brand: #2563eb;
+  --color-brand: #7627ed;
 }
 :root {
   font-family: "Inter", sans-serif;
   color-scheme: dark;
-  --bg: #10141c;
-  --surface: #171d28;
-  --surface-raised: #202836;
-  --surface-soft: #131923;
-  --text: #f1f5fa;
-  --muted: #b0bdce;
-  --subtle: #96a6bd;
-  --border: #303b4d;
-  --purple: #93b4ff;
-  --accent: #2563eb;
-  --accent-dark: #1d4ed8;
-  --accent-soft: #192c4b;
-  --header: rgba(16, 20, 28, 0.93);
+  --bg: #16171c;
+  --surface: #202127;
+  --surface-raised: #2a2b33;
+  --surface-soft: #1b1c22;
+  --text: #f3f3f6;
+  --muted: #b7b7c2;
+  --subtle: #9c9ca9;
+  --border: #363741;
+  --purple: #c29bff;
+  --accent: #7627ed;
+  --accent-dark: #5b17bd;
+  --accent-soft: #30213f;
+  --header: rgba(22, 23, 28, 0.93);
   background: var(--bg);
   color: var(--text);
   font-synthesis: none;
@@ -27,19 +27,19 @@
 }
 :root[data-theme="light"] {
   color-scheme: light;
-  --bg: #f6f7fa;
+  --bg: #f4f4f7;
   --surface: #fff;
-  --surface-raised: #eef1f6;
-  --surface-soft: #f0f3f8;
-  --text: #172235;
-  --muted: #4e5f77;
-  --subtle: #566881;
-  --border: #d8e0eb;
-  --purple: #1d4ed8;
-  --accent: #2563eb;
-  --accent-soft: #e8efff;
-  --accent-dark: #1d4ed8;
-  --header: rgba(246, 247, 250, 0.94);
+  --surface-raised: #ececf1;
+  --surface-soft: #f0f0f4;
+  --text: #20212a;
+  --muted: #5b5b6b;
+  --subtle: #686878;
+  --border: #dadae3;
+  --purple: #5b17bd;
+  --accent: #7627ed;
+  --accent-soft: #eee6fb;
+  --accent-dark: #5b17bd;
+  --header: rgba(244, 244, 247, 0.94);
 }
 * {
   box-sizing: border-box;
@@ -103,7 +103,7 @@ button {
   touch-action: manipulation;
 }
 ::selection {
-  background: #2563eb;
+  background: #7627ed;
   color: white;
 }
 :focus-visible {
@@ -183,8 +183,8 @@ html {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #93b4ff;
-  box-shadow: 0 0 0 4px #2563eb14;
+  background: #c29bff;
+  box-shadow: 0 0 0 4px #7627ed14;
   flex-shrink: 0;
 }
 .site-header {
@@ -222,9 +222,9 @@ html {
   justify-content: center;
   border-radius: 11px;
   overflow: hidden;
-  background: radial-gradient(circle at 35% 30%, #15243d 0%, #101722 100%);
+  background: radial-gradient(circle at 35% 30%, #29222f 0%, #18171d 100%);
   box-shadow:
-    0 2px 14px rgba(59, 130, 246, 0.35),
+    0 2px 14px rgba(148, 69, 245, 0.35),
     inset 0 0 0 1px rgba(255, 255, 255, 0.12);
   transition:
     transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
@@ -235,12 +235,12 @@ html {
 .brand:hover .brand-symbol-wrapper {
   transform: scale(1.06);
   box-shadow:
-    0 4px 22px rgba(59, 130, 246, 0.6),
-    inset 0 0 0 1px rgba(147, 180, 255, 0.4);
+    0 4px 22px rgba(148, 69, 245, 0.6),
+    inset 0 0 0 1px rgba(194, 155, 255, 0.4);
   filter: brightness(1.1);
 }
 .brand-symbol-img {
-  filter: hue-rotate(-35deg) saturate(0.85);
+  filter: none;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -261,7 +261,7 @@ html {
   align-items: baseline;
 }
 .brand-gradient {
-  background: linear-gradient(135deg, #3b82f6 0%, #93b4ff 100%);
+  background: linear-gradient(135deg, #9445f5 0%, #c29bff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-inline-start: 1px;
@@ -441,7 +441,7 @@ html {
   content: "";
   position: absolute;
   inset: 10px 0 50px;
-  background: radial-gradient(ellipse, #2563eb23, transparent 65%);
+  background: radial-gradient(ellipse, #7627ed23, transparent 65%);
   z-index: -1;
 }
 .brain-sphere {
@@ -453,19 +453,19 @@ html {
   height: 227px;
   display: grid;
   place-items: center;
-  filter: drop-shadow(0 0 35px #2563eb22);
+  filter: drop-shadow(0 0 35px #7627ed22);
   animation: float-brain 7s ease-in-out infinite;
 }
 .brain-sphere svg {
   width: 190px;
   height: 190px;
-  color: #93b4ff;
+  color: #c29bff;
   stroke-width: 1;
-  filter: drop-shadow(0 2px 2px #2563eb66);
+  filter: drop-shadow(0 2px 2px #7627ed66);
 }
 .orbit {
   position: absolute;
-  border: 1px solid #2563eb2b;
+  border: 1px solid #7627ed2b;
   left: 50%;
   top: 2px;
   border-radius: 50%;
@@ -479,7 +479,7 @@ html {
   top: 26px;
   transform: translateX(-50%) rotate(33deg);
   border-style: dashed;
-  border-color: #2563eb1c;
+  border-color: #7627ed1c;
 }
 .visual-star {
   position: absolute;
@@ -758,7 +758,7 @@ h2 {
 }
 .active-track {
   background: var(--accent-soft);
-  border-color: #2563eb5c;
+  border-color: #7627ed5c;
 }
 .active-track .track-icon {
   color: var(--purple);
@@ -786,7 +786,7 @@ h2 {
   min-width: 0;
 }
 .course-card:hover {
-  border-color: #2563eb78;
+  border-color: #7627ed78;
   box-shadow: 0 8px 30px #0000000a;
 }
 .course-top {
@@ -969,7 +969,7 @@ h2 {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid #2563eb4a;
+  border: 1px solid #7627ed4a;
   color: var(--purple);
   background: var(--accent-soft);
   font-family: monospace;
@@ -1060,7 +1060,7 @@ h2 {
   max-width: 250px;
 }
 .mock-portfolio h4 span {
-  color: #93b4ff;
+  color: #c29bff;
 }
 .mock-chips {
   display: flex;
@@ -1158,8 +1158,8 @@ h2 {
   border: 1px solid #767084;
 }
 .mock-tasks > div > span.checked {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: #7627ed;
+  border-color: #7627ed;
   display: grid;
   place-items: center;
   font-size: 8px;
@@ -1206,7 +1206,7 @@ h2 {
   margin-top: 14px;
 }
 .mock-chart i {
-  background: linear-gradient(#93b4ff, #2563eb4d);
+  background: linear-gradient(#c29bff, #7627ed4d);
   flex: 1;
   border-radius: 3px 3px 0 0;
   max-width: 24px;
@@ -1215,7 +1215,7 @@ h2 {
   position: absolute;
   bottom: 13px;
   left: 14px;
-  background: #10141ce8;
+  background: #16171ce8;
   color: #dddbe8;
   border: 1px solid #ffffff1c;
   border-radius: 4px;
@@ -1343,7 +1343,7 @@ h2 {
   margin-block: 0 90px;
   padding: 65px 30px;
   background:
-    radial-gradient(ellipse at 50% 100%, #2563eb17, transparent 70%),
+    radial-gradient(ellipse at 50% 100%, #7627ed17, transparent 70%),
     var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -1592,7 +1592,7 @@ footer {
   justify-content: space-between;
   gap: 25px;
   background: var(--accent-soft);
-  border: 1px solid #2563eb2b;
+  border: 1px solid #7627ed2b;
   border-radius: 8px;
 }
 .catalog-help h3 {
@@ -1673,7 +1673,7 @@ footer {
   border-radius: 4px;
 }
 .enrollment-panel {
-  border: 1px solid #2563eb4a;
+  border: 1px solid #7627ed4a;
   background: var(--surface);
   border-radius: 10px;
   padding: 30px;
@@ -1855,7 +1855,7 @@ footer {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(ellipse, #2563eb21, transparent 70%), var(--surface-soft);
+    radial-gradient(ellipse, #7627ed21, transparent 70%), var(--surface-soft);
 }
 .about-art svg {
   width: 155px;
@@ -2042,7 +2042,7 @@ footer {
   display: flex;
   gap: 10px;
   background: var(--accent-soft);
-  border: 1px solid #2563eb2a;
+  border: 1px solid #7627ed2a;
   border-radius: 6px;
   padding: 14px;
   margin-block: 24px;
@@ -2143,7 +2143,7 @@ footer {
   gap: 12px;
   background: var(--accent-soft);
   padding: 17px;
-  border: 1px solid #2563eb44;
+  border: 1px solid #7627ed44;
   border-radius: 7px;
   margin-top: 22px;
 }
@@ -2285,7 +2285,7 @@ footer {
   color: #245fa8;
 }
 :root[data-theme="light"] .tech-nextjs {
-  color: #1d4ed8;
+  color: #5b17bd;
 }
 @media (min-width: 1600px) {
   .container {
@@ -3839,35 +3839,35 @@ footer {
 
 /* Brand & Logo Styles */
 :root[data-theme="light"] .brand-symbol-wrapper {
-  background: radial-gradient(circle at 35% 30%, #172844 0%, #111b2a 100%);
+  background: radial-gradient(circle at 35% 30%, #29222f 0%, #18171d 100%);
   box-shadow:
-    0 4px 14px rgba(37, 99, 235, 0.22),
-    inset 0 0 0 1px rgba(37, 99, 235, 0.25);
+    0 4px 14px rgba(118, 39, 237, 0.22),
+    inset 0 0 0 1px rgba(118, 39, 237, 0.25);
 }
 :root[data-theme="light"] .brand-title {
   color: #0f172a;
 }
 :root[data-theme="light"] .brand-gradient {
-  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  background: linear-gradient(135deg, #7627ed 0%, #5b17bd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 :root[data-theme="light"] .brand-sub {
-  color: #2563eb;
+  color: #7627ed;
 }
 
 .brain-sphere .brand-symbol-wrapper {
   border-radius: 30px;
   box-shadow:
-    0 12px 48px rgba(59, 130, 246, 0.45),
-    inset 0 0 0 1.5px rgba(147, 180, 255, 0.35);
+    0 12px 48px rgba(148, 69, 245, 0.45),
+    inset 0 0 0 1.5px rgba(194, 155, 255, 0.35);
   animation: floatOrb 5.5s ease-in-out infinite;
 }
 .about-art .brand-symbol-wrapper {
   border-radius: 28px;
   box-shadow:
-    0 12px 45px rgba(59, 130, 246, 0.38),
-    inset 0 0 0 1.5px rgba(147, 180, 255, 0.25);
+    0 12px 45px rgba(148, 69, 245, 0.38),
+    inset 0 0 0 1.5px rgba(194, 155, 255, 0.25);
   animation: floatOrb 6.5s ease-in-out infinite;
 }
 @keyframes floatOrb {
@@ -4376,3 +4376,12 @@ footer {
   color: var(--subtle);
   margin-top: 2px;
 }
+/* Charcoal and violet identity with a transparent vector mark. */
+:root[data-theme="light"]{--purple:#6520cc;--accent-dark:#5b17bd}
+.brand-gradient,:root[data-theme="light"] .brand-gradient{background:linear-gradient(135deg,#b560ff,#7627ed 55%,#4d09ae);-webkit-background-clip:text;background-clip:text;color:#7627ed;-webkit-text-fill-color:transparent}
+.brand-symbol-img{filter:none;object-fit:contain;border-radius:inherit}
+.brand-symbol-wrapper,:root[data-theme="light"] .brand-symbol-wrapper{background:transparent;box-shadow:none;border:0;overflow:visible}
+.brand-symbol-wrapper:hover{filter:none;box-shadow:none}
+.brain-sphere .brand-symbol-wrapper{background:transparent;border-radius:0;box-shadow:none}
+
+.brain-sphere .brand-symbol-img{border-radius:0;filter:drop-shadow(0 8px 16px #7627ed22)}
