@@ -22,7 +22,7 @@ import { academy } from "../config/academy";
 import { courses } from "../data/courses";
 import SEO from "../components/SEO";
 export default function Contact() {
-  const { copy, ar } = useCopy();
+  const { copy, ar, local } = useCopy();
   const [params] = useSearchParams();
   const [ready, setReady] = useState(false);
   const [handoff, setHandoff] = useState("");
@@ -34,6 +34,7 @@ export default function Contact() {
     handleSubmit,
     control,
     trigger,
+    setValue,
     formState: { errors, isSubmitted },
   } = useForm<Values>({
     resolver: zodResolver(schema),
@@ -44,6 +45,16 @@ export default function Contact() {
       course: courses.some((c) => c.slug === selected)
         ? (selected as Values["course"])
         : undefined,
+      level: (() => {
+        const course = courses.find((c) => c.slug === selected);
+        const level = Number(params.get("level") ?? 1);
+        return course &&
+          Number.isInteger(level) &&
+          level >= 1 &&
+          level <= course.levels.length
+          ? String(level)
+          : "1";
+      })(),
       experience: "",
       method: "",
       phone: "",
@@ -55,11 +66,25 @@ export default function Contact() {
     if (isSubmitted) void trigger();
   }, [ar, isSubmitted, trigger]);
   const age = useWatch({ control, name: "age" });
+  const selectedCourseSlug = useWatch({ control, name: "course" });
+  const selectedCourse = courses.find(
+    (course) => course.slug === selectedCourseSlug,
+  );
+  const selectedLevel = useWatch({ control, name: "level" });
+  useEffect(() => {
+    if (
+      selectedCourse &&
+      Number(selectedLevel) > selectedCourse.levels.length
+    ) {
+      setValue("level", "1", { shouldValidate: isSubmitted });
+    }
+  }, [selectedCourse, selectedLevel, setValue, isSubmitted]);
   const labels = {
     name: copy("Student name", "اسم الطالب"),
     guardian: copy("Parent / guardian name", "اسم ولي الأمر"),
     age: copy("Student age range", "الفئة العمرية للطالب"),
     course: copy("Interested course", "الكورس المطلوب"),
+    level: copy("Interested level", "المستوى المطلوب"),
     experience: copy("Programming experience", "خبرتك في البرمجة"),
     method: copy("Preferred contact method", "وسيلة التواصل المفضلة"),
     phone: copy("Contact number", "رقم التواصل"),
@@ -69,6 +94,7 @@ export default function Contact() {
     const values = {
       ...data,
       course: courses.find((c) => c.slug === data.course)?.name || data.course,
+      level: `${copy("Level", "المستوى")} ${data.level}`,
       age:
         data.age === "under12"
           ? copy("Under 12", "أقل من ١٢")
@@ -182,9 +208,18 @@ export default function Contact() {
                 "مواعيد تدريس أونلاين مقترحة",
               )}
             </p>
-            {academy.slots.map((s) => (
-              <div key={s.en}>{s[ar ? "ar" : "en"]}</div>
-            ))}
+            {selectedCourse?.scheduleOnRequest ? (
+              <p>
+                {copy(
+                  "Schedule on request. One live 2-hour session per week.",
+                  "المواعيد حسب الطلب. محاضرة مباشرة أسبوعيًا مدتها ساعتان.",
+                )}
+              </p>
+            ) : (
+              academy.slots.map((s) => (
+                <div key={s.en}>{s[ar ? "ar" : "en"]}</div>
+              ))
+            )}
             <small>
               {copy(
                 "Africa/Cairo time. Subject to confirmation. These are proposed slots, not confirmed active groups.",
@@ -232,6 +267,7 @@ export default function Contact() {
                   "guardian",
                   "age",
                   "course",
+                  "level",
                   "experience",
                   "method",
                   "phone",
@@ -312,28 +348,41 @@ export default function Contact() {
                           ]
                         : key === "course"
                           ? courses.map((c) => [c.slug, c.name])
-                          : key === "experience"
-                            ? [
-                                [
-                                  "none",
-                                  copy("No experience yet", "بدون خبرة سابقة"),
+                          : key === "level"
+                            ? (selectedCourse?.levels ?? []).map(
+                                (level, index) => [
+                                  String(index + 1),
+                                  `${copy("Level", "المستوى")} ${index + 1}${level.sessions ? ` — ${local(level)}` : ""}`,
                                 ],
-                                [
-                                  "some",
-                                  copy("A little experience", "خبرة بسيطة"),
-                                ],
-                                [
-                                  "experienced",
-                                  copy(
-                                    "I’ve built projects before",
-                                    "سبق لي بناء مشاريع",
-                                  ),
-                                ],
-                              ]
-                            : [
-                                ["whatsapp", copy("WhatsApp", "واتساب")],
-                                ["phone", copy("Phone call", "مكالمة هاتفية")],
-                              ]
+                              )
+                            : key === "experience"
+                              ? [
+                                  [
+                                    "none",
+                                    copy(
+                                      "No experience yet",
+                                      "بدون خبرة سابقة",
+                                    ),
+                                  ],
+                                  [
+                                    "some",
+                                    copy("A little experience", "خبرة بسيطة"),
+                                  ],
+                                  [
+                                    "experienced",
+                                    copy(
+                                      "I’ve built projects before",
+                                      "سبق لي بناء مشاريع",
+                                    ),
+                                  ],
+                                ]
+                              : [
+                                  ["whatsapp", copy("WhatsApp", "واتساب")],
+                                  [
+                                    "phone",
+                                    copy("Phone call", "مكالمة هاتفية"),
+                                  ],
+                                ]
                       ).map(([v, l]) => (
                         <option key={v} value={v}>
                           {l}

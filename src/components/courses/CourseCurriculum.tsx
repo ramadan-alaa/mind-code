@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ChevronDown,
@@ -57,7 +58,11 @@ export default function CourseCurriculum({ course }: { course: Course }) {
         {course.levels.map((level, index) => {
           const isExpanded = expandedLevels.includes(index);
           const id = `${course.slug}-level-${index + 1}`;
-          const project = levelProjects[index];
+          const project = level.project ?? levelProjects[index];
+          const sessions = level.sessions?.length ?? course.sessions;
+          const hours = level.sessions
+            ? sessions * (level.hoursPerSession ?? 2)
+            : course.hours;
 
           // Split topics into distinct bullet points for clarity
           const topicsText = local(level);
@@ -98,26 +103,28 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                       </span>
                     </span>
                     <small>
-                      {index === 0
-                        ? copy(
-                            "Start from fundamentals with clarity",
-                            "البداية من الصفر بكل وضوح وتطبيق",
-                          )
-                        : index === course.levels.length - 1
+                      {level.sessions
+                        ? local(level)
+                        : index === 0
                           ? copy(
-                              "Real capstone project & portfolio piece",
-                              "مشروع تخرج حقيقي يضاف لبورتفوليو أعمالك",
+                              "Start from fundamentals with clarity",
+                              "البداية من الصفر بكل وضوح وتطبيق",
                             )
-                          : copy(
-                              "Deep dive into real-world workflows",
-                              "تعمق في التطبيق وأفضل الممارسات",
-                            )}
+                          : index === course.levels.length - 1
+                            ? copy(
+                                "Real capstone project & portfolio piece",
+                                "مشروع تخرج حقيقي يضاف لبورتفوليو أعمالك",
+                              )
+                            : copy(
+                                "Deep dive into real-world workflows",
+                                "تعمق في التطبيق وأفضل الممارسات",
+                              )}
                     </small>
                   </div>
                   <div className="curriculum-trigger-meta">
                     <span className="curriculum-duration">
                       <Clock3 size={13} />
-                      {course.hours} {copy("hrs", "ساعات")}
+                      {hours} {copy("hrs", "ساعات")}
                     </span>
                     <motion.span
                       className="curriculum-chevron"
@@ -147,26 +154,65 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                     style={{ overflow: "hidden" }}
                   >
                     <div className="curriculum-body">
-                      <div className="curriculum-eyebrow">
-                        <Code2 size={13} />
-                        <span>
-                          {copy(
-                            "CORE TOPICS & CONCEPTS",
-                            "المفاهيم والمهارات المكتسبة",
-                          )}
-                        </span>
-                      </div>
-
-                      <div className="curriculum-topics-grid">
-                        {topicsList.map((topic, tIdx) => (
-                          <div key={tIdx} className="curriculum-topic-item">
-                            <span className="topic-check-icon">
-                              <Check size={13} />
+                      {level.prerequisites && (
+                        <p className="session-prerequisites">
+                          {copy("Prerequisites: ", "المتطلبات السابقة: ")}
+                          {local(level.prerequisites)}
+                        </p>
+                      )}
+                      {level.sessions ? (
+                        <div className="session-list">
+                          {level.sessions.map((session) => (
+                            <details
+                              className="curriculum-session"
+                              key={session.number}
+                            >
+                              <summary>
+                                {copy("Session", "المحاضرة")} {session.number} —{" "}
+                                {local(session.title)}
+                              </summary>
+                              <div className="session-content">
+                                <ul>
+                                  {session.topics.map((topic) => (
+                                    <li key={topic.en}>{local(topic)}</li>
+                                  ))}
+                                </ul>
+                                <strong>
+                                  {copy(
+                                    "Practice & learning objective",
+                                    "التطبيق والهدف التعليمي",
+                                  )}
+                                </strong>
+                                {session.learningObjectives.map((objective) => (
+                                  <p key={objective.en}>{local(objective)}</p>
+                                ))}
+                              </div>
+                            </details>
+                          ))}
+                        </div>
+                      ) : (
+                        <>
+                          <div className="curriculum-eyebrow">
+                            <Code2 size={13} />
+                            <span>
+                              {copy(
+                                "CORE TOPICS & CONCEPTS",
+                                "المفاهيم والمهارات المكتسبة",
+                              )}
                             </span>
-                            <span>{topic}</span>
                           </div>
-                        ))}
-                      </div>
+                          <div className="curriculum-topics-grid">
+                            {topicsList.map((topic, tIdx) => (
+                              <div key={tIdx} className="curriculum-topic-item">
+                                <span className="topic-check-icon">
+                                  <Check size={13} />
+                                </span>
+                                <span>{topic}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
 
                       {project && (
                         <div className="curriculum-project-card">
@@ -185,21 +231,33 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                       <div className="curriculum-meta">
                         <span>
                           <CalendarDays size={14} />
-                          {course.sessions}{" "}
-                          {copy("live sessions", "محاضرات تفاعلية")}
+                          {sessions} {copy("live sessions", "محاضرات تفاعلية")}
                         </span>
                         <span>
                           <Clock3 size={14} />
-                          {course.hours} {copy("hours total", "إجمالي الساعات")}
+                          {hours} {copy("hours total", "إجمالي الساعات")}
                         </span>
                         <span className="curriculum-price-tag">
-                          {course.price.toLocaleString("en-US")}{" "}
+                          {(level.price ?? course.price).toLocaleString(
+                            "en-US",
+                          )}{" "}
                           {copy(
                             "EGP · per student / level",
                             "ج.م · لكل طالب للمستوى",
                           )}
                         </span>
                       </div>
+                      {level.sessions && (
+                        <Link
+                          className="text-link curriculum-enroll"
+                          to={`/contact?course=${course.slug}&level=${index + 1}`}
+                        >
+                          {copy(
+                            "Inquire about this level",
+                            "استفسر عن هذا المستوى",
+                          )}
+                        </Link>
+                      )}
                     </div>
                   </motion.div>
                 )}

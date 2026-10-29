@@ -3,7 +3,12 @@ import { useState } from "react";
 import { Search, SlidersHorizontal, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CourseCard, useCopy } from "../components/ui";
-import { courses, tracks } from "../data/courses";
+import {
+  courses,
+  tracks,
+  courseCategories,
+  courseCategory,
+} from "../data/courses";
 import SEO from "../components/SEO";
 export default function Courses() {
   const { copy, t, local } = useCopy();
@@ -17,7 +22,9 @@ export default function Courses() {
         .toLowerCase()
         .includes(search.toLowerCase()) &&
       (difficulty === "all" || c.difficulty === difficulty) &&
-      (category === "all" || category === "frontend") &&
+      (category === "all" ||
+        category === "frontend" ||
+        category === courseCategory(c)) &&
       status !== "soon",
   );
   const upcoming = tracks.filter(
@@ -72,6 +79,11 @@ export default function Courses() {
             >
               <option value="all">{copy("All tracks", "كل المسارات")}</option>
               <option value="frontend">{local(tracks[0])}</option>
+              {Object.entries(courseCategories).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {local(label)}
+                </option>
+              ))}
               {tracks.slice(1).map((c) => (
                 <option key={c.en} value={c.en}>
                   {local(c)}
@@ -91,6 +103,10 @@ export default function Courses() {
               </option>
               <option value="beginner">{t("beginner")}</option>
               <option value="intermediate">{t("intermediate")}</option>
+              <option value="intermediateBeginner">
+                {t("intermediateBeginner")}
+              </option>
+              <option value="advanced">{t("advanced")}</option>
             </select>
           </label>
           <label>

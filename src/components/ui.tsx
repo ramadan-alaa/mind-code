@@ -9,6 +9,8 @@ import {
   Radio,
   Layers3,
   Plus,
+  GitBranch,
+  Wind,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { Course, Localized } from "../data/courses";
@@ -127,7 +129,13 @@ export function TechIcon({ course }: { course: Course }) {
       className={`tech-icon tech-${course.slug}`}
       style={{ "--tech": course.color } as CSSProperties}
     >
-      {course.symbol}
+      {course.slug === "git-github" ? (
+        <GitBranch aria-label="Git" size={28} />
+      ) : course.slug === "tailwind-css" ? (
+        <Wind aria-label="Tailwind CSS" size={28} />
+      ) : (
+        course.symbol
+      )}
     </span>
   );
 }
@@ -161,8 +169,10 @@ export function CourseCard({ course }: { course: Course }) {
       <div className="course-price">
         <small>{copy("Starting at", "يبدأ من")}</small>
         <div>
-          <div>
-            <del style={{ opacity: 0.55, marginInlineEnd: 8, fontSize: "0.9em" }}>{course.oldPrice.toLocaleString("en-US")}</del>
+          <div className="course-price-amounts">
+            {course.oldPrice && (
+              <del>{course.oldPrice.toLocaleString("en-US")}</del>
+            )}
             <strong>
               {course.price.toLocaleString("en-US")}{" "}
               <span>{copy("EGP", "ج.م")}</span>
@@ -204,10 +214,7 @@ export function Accordion({
         const isOpen = openIndex === i;
         const id = `faq-accordion-${i}`;
         return (
-          <div
-            key={i}
-            className={`accordion-item ${isOpen ? "is-open" : ""}`}
-          >
+          <div key={i} className={`accordion-item ${isOpen ? "is-open" : ""}`}>
             <h3>
               <button
                 type="button"
@@ -240,7 +247,10 @@ export function Accordion({
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{
-                    height: { duration: reduce ? 0 : 0.32, ease: [0.16, 1, 0.3, 1] },
+                    height: {
+                      duration: reduce ? 0 : 0.32,
+                      ease: [0.16, 1, 0.3, 1],
+                    },
                     opacity: { duration: reduce ? 0 : 0.25, ease: "easeInOut" },
                   }}
                   style={{ overflow: "hidden" }}

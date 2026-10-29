@@ -1,5 +1,6 @@
 ﻿import { Children, useSyncExternalStore, type ReactNode } from "react";
-import { Pagination } from "swiper/modules";
+import { Pagination, A11y, Keyboard } from "swiper/modules";
+import { useTranslation } from "react-i18next";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -26,22 +27,37 @@ function useIsMobile() {
 export function MobileSlider({
   className,
   children,
+  always = false,
 }: {
   className: string;
   children: ReactNode;
+  always?: boolean;
 }) {
   const isMobile = useIsMobile();
+  const { i18n } = useTranslation();
+  const rtl = i18n.language === "ar";
 
-  if (!isMobile) return <div className={className}>{children}</div>;
+  if (!isMobile && !always) return <div className={className}>{children}</div>;
 
   return (
     <Swiper
-      className={`mobile-slider ${className}-slider`}
-      modules={[Pagination]}
+      key={rtl ? "rtl" : "ltr"}
+      className={`mobile-slider ${always ? "all-courses-slider" : ""} ${className}-slider`}
+      modules={[Pagination, A11y, Keyboard]}
+      keyboard={{ enabled: true, onlyInViewport: true }}
       pagination={{ clickable: true }}
       slidesPerView={1.18}
       spaceBetween={14}
-      dir={document.documentElement.dir === "rtl" ? "rtl" : "ltr"}
+      breakpoints={
+        always
+          ? {
+              768: { slidesPerView: 2.2, spaceBetween: 20 },
+              1024: { slidesPerView: 3, spaceBetween: 22 },
+              1280: { slidesPerView: 4, spaceBetween: 24 },
+            }
+          : undefined
+      }
+      dir={rtl ? "rtl" : "ltr"}
     >
       {Children.toArray(children).map((child, i) => (
         <SwiperSlide key={i} className="mobile-slide">
@@ -51,4 +67,3 @@ export function MobileSlider({
     </Swiper>
   );
 }
-

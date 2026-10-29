@@ -2,7 +2,11 @@ import { chromium } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 import fs from "node:fs/promises";
 const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
+  executablePath:
+    process.env.CHROME_PATH ||
+    (process.platform === "win32"
+      ? "C:/Program Files/Google/Chrome/Application/chrome.exe"
+      : "/usr/bin/google-chrome"),
   headless: true,
   args: ["--no-sandbox"],
 });
@@ -34,6 +38,10 @@ const routes = [
   "/courses/css",
   "/courses/javascript",
   "/courses/react",
+  "/courses/git-github",
+  "/courses/tailwind-css",
+  "/courses/typescript",
+  "/courses/nextjs",
   "/about",
   "/contact",
   "/missing",

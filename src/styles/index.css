@@ -207,7 +207,9 @@ html {
   gap: 12px;
   flex-shrink: 0;
   text-decoration: none;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  transition:
+    transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
 }
 .brand:hover {
   transform: translateY(-1px);
@@ -220,13 +222,20 @@ html {
   border-radius: 11px;
   overflow: hidden;
   background: radial-gradient(circle at 35% 30%, #1e1233 0%, #0d0a17 100%);
-  box-shadow: 0 2px 14px rgba(168, 85, 247, 0.35), inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, filter 0.35s ease;
+  box-shadow:
+    0 2px 14px rgba(168, 85, 247, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+  transition:
+    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.35s ease,
+    filter 0.35s ease;
   flex-shrink: 0;
 }
 .brand:hover .brand-symbol-wrapper {
   transform: scale(1.06);
-  box-shadow: 0 4px 22px rgba(168, 85, 247, 0.6), inset 0 0 0 1px rgba(192, 132, 252, 0.4);
+  box-shadow:
+    0 4px 22px rgba(168, 85, 247, 0.6),
+    inset 0 0 0 1px rgba(192, 132, 252, 0.4);
   filter: brightness(1.1);
 }
 .brand-symbol-img {
@@ -872,7 +881,20 @@ h2 {
   flex-wrap: wrap;
   margin-top: 4px;
 }
+.course-price-amounts {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.course-price-amounts > del {
+  color: var(--muted);
+  font-size: 0.9em;
+}
+[dir="rtl"] .course-price-amounts > del {
+  order: 1;
+}
 .course-price strong {
+  white-space: nowrap;
   font-size: 22px;
   letter-spacing: -0.04em;
 }
@@ -2274,6 +2296,12 @@ footer {
 }
 :root[data-theme="light"] .tech-react {
   color: #087a90;
+}
+:root[data-theme="light"] .tech-typescript {
+  color: #245fa8;
+}
+:root[data-theme="light"] .tech-nextjs {
+  color: #6d28d9;
 }
 @media (min-width: 1600px) {
   .container {
@@ -3837,7 +3865,9 @@ footer {
 /* Brand & Logo Styles */
 :root[data-theme="light"] .brand-symbol-wrapper {
   background: radial-gradient(circle at 35% 30%, #1a102e 0%, #0c0818 100%);
-  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.22), inset 0 0 0 1px rgba(124, 58, 237, 0.25);
+  box-shadow:
+    0 4px 14px rgba(124, 58, 237, 0.22),
+    inset 0 0 0 1px rgba(124, 58, 237, 0.25);
 }
 :root[data-theme="light"] .brand-title {
   color: #0f172a;
@@ -3853,23 +3883,27 @@ footer {
 
 .brain-sphere .brand-symbol-wrapper {
   border-radius: 30px;
-  box-shadow: 0 12px 48px rgba(168, 85, 247, 0.45), inset 0 0 0 1.5px rgba(192, 132, 252, 0.35);
+  box-shadow:
+    0 12px 48px rgba(168, 85, 247, 0.45),
+    inset 0 0 0 1.5px rgba(192, 132, 252, 0.35);
   animation: floatOrb 5.5s ease-in-out infinite;
 }
 .about-art .brand-symbol-wrapper {
   border-radius: 28px;
-  box-shadow: 0 12px 45px rgba(168, 85, 247, 0.38), inset 0 0 0 1.5px rgba(192, 132, 252, 0.25);
+  box-shadow:
+    0 12px 45px rgba(168, 85, 247, 0.38),
+    inset 0 0 0 1.5px rgba(192, 132, 252, 0.25);
   animation: floatOrb 6.5s ease-in-out infinite;
 }
 @keyframes floatOrb {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
   50% {
     transform: translateY(-8px) rotate(1.2deg);
   }
 }
-
 
 .mobile-slider {
   padding-bottom: 34px !important;
@@ -3900,4 +3934,10 @@ footer {
 }
 .mobile-slider .mobile-slide:not(.swiper-slide-active) {
   opacity: 0.85;
+}
+.all-courses-slider .swiper-pagination-bullet {
+  background: var(--muted);
+}
+.all-courses-slider .swiper-pagination-bullet-active {
+  background: var(--purple);
 }

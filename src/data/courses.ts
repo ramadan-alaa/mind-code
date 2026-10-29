@@ -1,17 +1,48 @@
+import { professionalCourses } from "./professionalCourses";
 export type Localized = { en: string; ar: string };
+export interface CourseSession {
+  number: number;
+  title: Localized;
+  topics: Localized[];
+  practiceTask: Localized;
+  learningObjectives: Localized[];
+}
+export interface CourseLevel extends Localized {
+  id?: string;
+  sessions?: CourseSession[];
+  hoursPerSession?: number;
+  price?: number;
+  project?: Localized;
+  prerequisites?: Localized;
+}
+export const courseCategories = {
+  fundamentals: { en: "Frontend Fundamentals", ar: "أساسيات الواجهات" },
+  frameworks: { en: "Frontend Frameworks", ar: "أطر عمل الواجهات" },
+  languages: { en: "Programming Languages", ar: "لغات البرمجة" },
+  styling: { en: "Styling Tools", ar: "أدوات التنسيق" },
+  tools: { en: "Developer Tools", ar: "أدوات المطور" },
+} satisfies Record<string, Localized>;
+export type CourseCategory = keyof typeof courseCategories;
 export interface Course {
   slug: string;
   name: string;
   color: string;
   symbol: string;
   price: number;
-  oldPrice: number;
+  oldPrice?: number;
   sessions: number;
   hours: number;
-  difficulty: "beginner" | "intermediate";
+  difficulty: "beginner" | "intermediateBeginner" | "intermediate" | "advanced";
+  category?: CourseCategory;
+  audience?: Localized;
+  outcomes?: Localized[];
+  progression?: Localized;
+  scheduleOnRequest?: boolean;
+  collection?: "foundation" | "professional";
+  faq?: { q: Localized; a: Localized }[];
   description: Localized;
   prerequisites: Localized;
-  levels: Localized[];
+  levels: CourseLevel[];
 }
 export const courses: Course[] = [
   {
@@ -150,7 +181,33 @@ export const courses: Course[] = [
       },
     ],
   },
+  ...professionalCourses,
 ];
+export const courseCategory = (course: Course): CourseCategory =>
+  course.category ??
+  (course.slug === "react"
+    ? "frameworks"
+    : course.slug === "javascript"
+      ? "languages"
+      : "fundamentals");
+export const courseTotals = (course: Course) => ({
+  price: course.levels.reduce(
+    (sum, level) => sum + (level.price ?? course.price),
+    0,
+  ),
+  sessions: course.levels.reduce(
+    (sum, level) => sum + (level.sessions?.length ?? course.sessions),
+    0,
+  ),
+  hours: course.levels.reduce(
+    (sum, level) =>
+      sum +
+      (level.sessions
+        ? level.sessions.length * (level.hoursPerSession ?? 2)
+        : course.hours),
+    0,
+  ),
+});
 export const tracks = [
   {
     en: "Frontend Development",

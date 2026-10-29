@@ -24,7 +24,13 @@ import {
   FileCode2,
 } from "lucide-react";
 import type { CSSProperties } from "react";
-import { courses } from "../data/courses";
+import {
+  courses,
+  courseCategories,
+  courseCategory,
+  courseTotals,
+} from "../data/courses";
+import { academy } from "../config/academy";
 import {
   Accordion,
   ButtonLink,
@@ -53,15 +59,15 @@ const snippets: Record<
     fileName: "index.html",
     code: [
       "<!DOCTYPE html>",
-      "<html lang=\"ar\" dir=\"rtl\">",
+      '<html lang="ar" dir="rtl">',
       "  <head>",
       "    <title>موقعي الأول | My First Website</title>",
       "  </head>",
       "  <body>",
-      "    <header class=\"hero\">",
+      '    <header class="hero">',
       "      <h1>أهلاً بك في عالم الويب 🚀</h1>",
       "      <p>أول خطوة حقيقية لبناء مستقبلك الرقمي.</p>",
-      "      <a href=\"#contact\" class=\"btn\">ابدأ الآن</a>",
+      '      <a href="#contact" class="btn">ابدأ الآن</a>',
       "    </header>",
       "  </body>",
       "</html>",
@@ -88,7 +94,8 @@ const snippets: Record<
       "  box-shadow: 0 12px 30px rgba(102, 168, 251, 0.25);",
       "}",
     ],
-    previewHtml: "✨ واجهات حديثة بتأثيرات الزجاج وانتقالات ناعمة واستجابة لكل الشاشات.",
+    previewHtml:
+      "✨ واجهات حديثة بتأثيرات الزجاج وانتقالات ناعمة واستجابة لكل الشاشات.",
   },
   javascript: {
     fileName: "app.js",
@@ -138,7 +145,9 @@ export default function CourseDetails() {
   const [activeTab, setActiveTab] = useState<"code" | "preview">("code");
   const [copied, setCopied] = useState(false);
   const [activeNav, setActiveNav] = useState("curriculum");
-  const [selectedLevelIndex, setSelectedLevelIndex] = useState(0);
+  const [levelSelection, setLevelSelection] = useState({ slug, index: 0 });
+  const selectedLevelIndex =
+    levelSelection.slug === slug ? levelSelection.index : 0;
 
   // Generate unique IDs for tab accessibility
   const codeTabId = useId();
@@ -146,7 +155,13 @@ export default function CourseDetails() {
 
   // ScrollSpy observer for section navigation
   useEffect(() => {
-    const sections = ["curriculum", "projects", "course-fit", "experience", "faq"];
+    const sections = [
+      "curriculum",
+      "projects",
+      "course-fit",
+      "experience",
+      "faq",
+    ];
     const handleScroll = () => {
       const scrollPosition = window.scrollY + 200;
       for (const sectionId of sections) {
@@ -167,8 +182,61 @@ export default function CourseDetails() {
 
   if (!course) return <NotFound />;
 
-  const snippetInfo = snippets[course.slug] || snippets.javascript;
-  const projects = courseProjectsMap[course.slug] || [];
+  const snippetInfo = snippets[course.slug] || {
+    fileName:
+      course.slug === "git-github"
+        ? "workflow.sh"
+        : course.slug === "tailwind-css"
+          ? "styles.css"
+          : course.slug === "typescript"
+            ? "task.ts"
+            : "app/page.tsx",
+    code:
+      course.slug === "git-github"
+        ? [
+            "git switch -c feature/course-page",
+            "git add .",
+            'git commit -m "Add course page"',
+            "git push -u origin feature/course-page",
+          ]
+        : course.slug === "tailwind-css"
+          ? [
+              '@import "tailwindcss";',
+              "@theme {",
+              "  --color-academy: #b5a3ef;",
+              "}",
+            ]
+          : course.slug === "typescript"
+            ? [
+                "type Task = { id: string; title: string; done: boolean };",
+                "function complete(task: Task): Task {",
+                "  return { ...task, done: true };",
+                "}",
+              ]
+            : [
+                "export default async function Page() {",
+                "  const courses = await getCourses();",
+                "  return <CourseList courses={courses} />;",
+                "}",
+              ],
+    previewHtml: local(course.description),
+  };
+  const projects = course.levels.some((level) => level.project)
+    ? course.levels.map((level, index) => ({
+        title: { en: level.en, ar: level.ar },
+        description: level.project!,
+        tag: {
+          en: `Level ${index + 1} Project`,
+          ar: `مشروع المستوى ${index + 1}`,
+        },
+        highlight: index === course.levels.length - 1,
+      }))
+    : courseProjectsMap[course.slug] || [];
+  const levelIndex = Math.min(selectedLevelIndex, course.levels.length - 1);
+  const selectedLevel = course.levels[levelIndex];
+  const selectedPrice = selectedLevel.price ?? course.price;
+  const totals = courseTotals(course);
+  const enrollmentUrl = `/contact?course=${course.slug}&level=${levelIndex + 1}`;
 
   const handleCopyCode = () => {
     const textToCopy = snippetInfo.code.join("\n");
@@ -178,8 +246,14 @@ export default function CourseDetails() {
   };
 
   const whatsappMessage = encodeURIComponent(
-    `مرحباً مايندكود أكاديمي، أود الاستفسار عن كورس ${course.name} ومواعيد المحاضرات القادمة.`
+    copy(
+      `Hello MindCode Academy, I would like to inquire about ${course.name}, level ${levelIndex + 1}, and its schedule.`,
+      `مرحباً مايندكود أكاديمي، أود الاستفسار عن كورس ${course.name}، المستوى ${levelIndex + 1}، ومواعيد المحاضرات القادمة.`,
+    ),
   );
+  const whatsappUrl = /^\d{8,15}$/.test(academy.whatsapp)
+    ? `https://wa.me/${academy.whatsapp}?text=${whatsappMessage}`
+    : enrollmentUrl;
 
   return (
     <div
@@ -193,8 +267,10 @@ export default function CourseDetails() {
       }
     >
       <SEO
-        en={`${course.name} Course | MindCode Academy`}
-        ar={`كورس ${course.name} التفاعلي | أكاديمية مايندكود`}
+        en={`${course.name} Course`}
+        ar={`كورس ${course.name} التفاعلي`}
+        descriptionEn={course.description.en}
+        descriptionAr={course.description.ar}
       />
 
       {/* Hero Ambient Glow Layer */}
@@ -233,11 +309,9 @@ export default function CourseDetails() {
                 {t("available")}
               </span>
               <span className="course-category-tag">
-                {copy("FRONTEND TRACK", "مسار الويب التفاعلي")}
+                {local(courseCategories[courseCategory(course)])}
               </span>
-              <span className="course-level-pill">
-                {t(course.difficulty)}
-              </span>
+              <span className="course-level-pill">{t(course.difficulty)}</span>
             </div>
 
             <h1 className="course-main-heading">
@@ -270,12 +344,12 @@ export default function CourseDetails() {
             </div>
 
             <div className="course-intro-actions">
-              <ButtonLink to={`/contact?course=${course.slug}`}>
+              <ButtonLink to={enrollmentUrl}>
                 {copy("Enroll / Inquire Now", "سجّل أو استفسر الآن")}
               </ButtonLink>
 
               <a
-                href={`https://wa.me/?text=${whatsappMessage}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whatsapp-quick-btn"
@@ -320,7 +394,12 @@ export default function CourseDetails() {
             <motion.div
               className="floating-badge badge-feedback"
               animate={reduce ? {} : { y: [0, 6, 0] }}
-              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              transition={{
+                duration: 6,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1,
+              }}
             >
               <Award size={13} />
               <span>{copy("Code Review Included", "مراجعة كود أسبوعية")}</span>
@@ -415,14 +494,19 @@ export default function CourseDetails() {
                     >
                       <div className="preview-illustration">
                         <TechIcon course={course} />
-                        <h4>{course.name} Interactive Showcase</h4>
+                        <h4>
+                          {course.name} —{" "}
+                          {copy("Interactive Showcase", "عرض تفاعلي")}
+                        </h4>
                         <p>{snippetInfo.previewHtml}</p>
                         <div className="preview-badge-row">
                           <span className="badge-tag">
-                            <Check size={12} /> {copy("Clean Architecture", "كود نظيف ومعياري")}
+                            <Check size={12} />{" "}
+                            {copy("Clean Architecture", "كود نظيف ومعياري")}
                           </span>
                           <span className="badge-tag">
-                            <Check size={12} /> {copy("Production Ready", "جاهز للإنتاج")}
+                            <Check size={12} />{" "}
+                            {copy("Production Ready", "جاهز للإنتاج")}
                           </span>
                         </div>
                       </div>
@@ -435,7 +519,9 @@ export default function CourseDetails() {
               <div className="editor-statusbar">
                 <div className="status-item">
                   <span className="status-indicator-dot" />
-                  <span>{copy("Ready for practice", "جاهز للتطبيق العملي")}</span>
+                  <span>
+                    {copy("Ready for practice", "جاهز للتطبيق العملي")}
+                  </span>
                 </div>
                 <div className="status-tags">
                   <span>UTF-8</span>
@@ -514,10 +600,22 @@ export default function CourseDetails() {
           >
             <div className="nav-links-track">
               {[
-                { id: "curriculum", label: copy("Learning Path", "مسار التعلم") },
-                { id: "projects", label: copy("Projects You'll Build", "المشاريع العملية") },
-                { id: "course-fit", label: copy("Who Is This For?", "لمن هذا الكورس؟") },
-                { id: "experience", label: copy("Why MindCode?", "ليه مايندكود؟") },
+                {
+                  id: "curriculum",
+                  label: copy("Learning Path", "مسار التعلم"),
+                },
+                {
+                  id: "projects",
+                  label: copy("Projects You'll Build", "المشاريع العملية"),
+                },
+                {
+                  id: "course-fit",
+                  label: copy("Who Is This For?", "لمن هذا الكورس؟"),
+                },
+                {
+                  id: "experience",
+                  label: copy("Why MindCode?", "ليه مايندكود؟"),
+                },
                 { id: "faq", label: copy("FAQ", "أسئلة شائعة") },
               ].map(({ id, label }) => {
                 const isActive = activeNav === id;
@@ -533,7 +631,11 @@ export default function CourseDetails() {
                       <motion.span
                         className="nav-active-pill"
                         layoutId="activeNavPill"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 30,
+                        }}
                       />
                     )}
                   </a>
@@ -542,10 +644,7 @@ export default function CourseDetails() {
             </div>
 
             <div className="nav-quick-cta">
-              <Link
-                to={`/contact?course=${course.slug}`}
-                className="nav-enroll-button"
-              >
+              <Link to={enrollmentUrl} className="nav-enroll-button">
                 {copy("Enroll", "سجّل الآن")}
                 <ArrowUpRight size={14} />
               </Link>
@@ -560,7 +659,10 @@ export default function CourseDetails() {
                 {copy("A CLEAR PATH FORWARD", "مسار تدريبي واضح ومتكامل")}
               </p>
               <h2>
-                {copy("One level. One step closer to mastery.", "كل مستوى يقرّبك لهدفك الاحترافي.")}
+                {copy(
+                  "One level. One step closer to mastery.",
+                  "كل مستوى يقرّبك لهدفك الاحترافي.",
+                )}
               </h2>
               <p className="course-section-description">
                 {copy(
@@ -571,6 +673,20 @@ export default function CourseDetails() {
             </Reveal>
 
             <CourseCurriculum key={course.slug} course={course} />
+            {course.progression && (
+              <div className="course-path-card">
+                <h3>{copy("Your learning path", "مسارك التعليمي")}</h3>
+                <p>{local(course.progression)}</p>
+                <p dir="ltr">HTML → CSS → JavaScript → React</p>
+                <Link className="text-link" to="/courses">
+                  {copy(
+                    "Compare courses and prerequisites",
+                    "قارن الكورسات ومتطلباتها",
+                  )}
+                  <ArrowUpRight size={15} />
+                </Link>
+              </div>
+            )}
 
             <div className="curriculum-footnote-box">
               <BookOpen size={16} />
@@ -623,7 +739,10 @@ export default function CourseDetails() {
                   <div className="project-card-footer">
                     <span className="project-feature-label">
                       <Check size={13} />
-                      {copy("Source Code & Feedback Included", "مراجعة الكود مع المدرب")}
+                      {copy(
+                        "Source Code & Feedback Included",
+                        "مراجعة الكود مع المدرب",
+                      )}
                     </span>
                   </div>
                 </motion.div>
@@ -639,18 +758,25 @@ export default function CourseDetails() {
                 {copy("FIND YOUR FIT", "اعرف نقطة بدايتك")}
               </p>
               <h2>
-                {copy("Your curiosity belongs here.", "فضولك ورغبتك في التطور مكانهم هنا.")}
+                {copy(
+                  "Your curiosity belongs here.",
+                  "فضولك ورغبتك في التطور مكانهم هنا.",
+                )}
               </h2>
             </Reveal>
 
             <div className="course-fit-grid">
               <Reveal className="course-fit-card">
                 <Compass size={24} className="fit-card-icon" />
-                <h3>{copy("Who is this course for?", "الكورس ده مصمم لمين؟")}</h3>
+                <h3>
+                  {copy("Who is this course for?", "الكورس ده مصمم لمين؟")}
+                </h3>
                 <p>
                   {copy(
-                    "High school and university students, career switchers, and developers seeking hands-on mastery with personalized instructor mentoring rather than pre-recorded videos.",
-                    "للطلاب الجامعيين والراغبين في تغيير مسارهم المهني والمطورين الباحثين عن إرشاد مباشر وتطبيق عملي حقيقي بدلاً من الفيديوهات المسجلة الجافة.",
+                    course.audience?.en ??
+                      "High school and university students, career switchers, and developers seeking hands-on mastery with personalized instructor mentoring rather than pre-recorded videos.",
+                    course.audience?.ar ??
+                      "للطلاب الجامعيين والراغبين في تغيير مسارهم المهني والمطورين الباحثين عن إرشاد مباشر وتطبيق عملي حقيقي بدلاً من الفيديوهات المسجلة الجافة.",
                   )}
                 </p>
                 <div className="fit-tags-list">
@@ -662,29 +788,61 @@ export default function CourseDetails() {
 
               <Reveal className="course-fit-card">
                 <Code2 size={24} className="fit-card-icon" />
-                <h3>{copy("Prerequisites & Preparation", "المتطلبات السابقة")}</h3>
+                <h3>
+                  {copy("Prerequisites & Preparation", "المتطلبات السابقة")}
+                </h3>
                 <p>{local(course.prerequisites)}</p>
                 <div className="fit-checklist">
                   <div className="checklist-item">
                     <Check size={14} />
-                    <span>{copy("A PC or Laptop (Windows / Mac / Linux)", "جهاز كمبيوتر أو لابتوب")}</span>
+                    <span>
+                      {copy(
+                        "A PC or Laptop (Windows / Mac / Linux)",
+                        "جهاز كمبيوتر أو لابتوب",
+                      )}
+                    </span>
                   </div>
                   <div className="checklist-item">
                     <Check size={14} />
-                    <span>{copy("Stable internet connection for live sessions", "إنترنت مستقر للمحاضرات المباشرة")}</span>
+                    <span>
+                      {copy(
+                        "Stable internet connection for live sessions",
+                        "إنترنت مستقر للمحاضرات المباشرة",
+                      )}
+                    </span>
                   </div>
                   <div className="checklist-item">
                     <Check size={14} />
-                    <span>{copy("Curiosity and 3-4 hours weekly practice", "الرغبة في التعلم وتخصيص وقت للتطبيق")}</span>
+                    <span>
+                      {copy(
+                        "Curiosity and 3-4 hours weekly practice",
+                        "الرغبة في التعلم وتخصيص وقت للتطبيق",
+                      )}
+                    </span>
                   </div>
                 </div>
 
-                <Link className="text-link fit-contact-link" to={`/contact?course=${course.slug}`}>
-                  {copy("Ask about your starting level", "تواصل معنا لاختيار بدايتك")}
+                <Link className="text-link fit-contact-link" to={enrollmentUrl}>
+                  {copy(
+                    "Ask about your starting level",
+                    "تواصل معنا لاختيار بدايتك",
+                  )}
                   <ArrowUpRight size={15} />
                 </Link>
               </Reveal>
             </div>
+            {course.outcomes && (
+              <div className="course-path-card">
+                <h3>
+                  {copy("What you will be able to build", "ما ستتمكن من بنائه")}
+                </h3>
+                <ul>
+                  {course.outcomes.map((outcome) => (
+                    <li key={outcome.en}>{local(outcome)}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </section>
 
           {/* Section 4: Why MindCode Learning Experience */}
@@ -695,7 +853,10 @@ export default function CourseDetails() {
                 {copy("THE MINDCODE ADVANTAGE", "تجربة التعلم في مايندكود")}
               </p>
               <h2>
-                {copy("Why learners thrive with us.", "ليه بتتعلم أسرع وبثقة أكبر معنا؟")}
+                {copy(
+                  "Why learners thrive with us.",
+                  "ليه بتتعلم أسرع وبثقة أكبر معنا؟",
+                )}
               </h2>
             </Reveal>
 
@@ -703,7 +864,10 @@ export default function CourseDetails() {
               {[
                 {
                   icon: Users,
-                  title: copy("Live Interactive Cohorts", "محاضرات لايف تفاعلية"),
+                  title: copy(
+                    "Live Interactive Cohorts",
+                    "محاضرات لايف تفاعلية",
+                  ),
                   desc: copy(
                     "You ask questions in real-time, share your screen when stuck, and learn with an instructor actively guiding you.",
                     "محاضرات مباشرة صوت وصورة مع المدرب، تقدر تشارك شاشتك وتسأل في أي نقطة فوراً.",
@@ -711,7 +875,10 @@ export default function CourseDetails() {
                 },
                 {
                   icon: Code2,
-                  title: copy("Line-by-Line Code Reviews", "مراجعة كود سطر بسطر"),
+                  title: copy(
+                    "Line-by-Line Code Reviews",
+                    "مراجعة كود سطر بسطر",
+                  ),
                   desc: copy(
                     "Receive constructive weekly feedback on your assignments to adopt professional coding standards and clean habits.",
                     "واجباتك ومشاريعك بتتراجع سطر بسطر مع ملاحظات لتكتب كود نظيف متوافق مع معايير الشركات.",
@@ -719,7 +886,10 @@ export default function CourseDetails() {
                 },
                 {
                   icon: MessageCircle,
-                  title: copy("Continuous Mentor Support", "متابعة مستمرة بين المحاضرات"),
+                  title: copy(
+                    "Continuous Mentor Support",
+                    "متابعة مستمرة بين المحاضرات",
+                  ),
                   desc: copy(
                     "Have a question between sessions? Reach out to the instructor directly without waiting for the next week.",
                     "واقف في مشكلة أثناء المذاكرة؟ تواصل مع المدرب مباشرة في أي وقت بدون ما تستنى المحاضرة اللي بعدها.",
@@ -727,7 +897,10 @@ export default function CourseDetails() {
                 },
                 {
                   icon: Award,
-                  title: copy("Verified Certificate of Completion", "شهادة إتمام معتمدة"),
+                  title: copy(
+                    "Verified Certificate of Completion",
+                    "شهادة إتمام معتمدة",
+                  ),
                   desc: copy(
                     "Earn a verifiable MindCode Academy certificate upon completing your level and delivering your practical capstone.",
                     "احصل على شهادة موثقة من مايندكود تثبت إنجازك للمستوى وتسليمك للمشاريع العملية المطلوبة.",
@@ -752,10 +925,18 @@ export default function CourseDetails() {
                 <span />
                 {copy("ANSWERS & CLARITY", "إجابات توضح كل التفاصيل")}
               </p>
-              <h2>{copy("Frequently asked questions.", "الأسئلة الشائعة حول الكورس.")}</h2>
+              <h2>
+                {copy(
+                  "Frequently asked questions.",
+                  "الأسئلة الشائعة حول الكورس.",
+                )}
+              </h2>
             </Reveal>
 
-            <Accordion items={faq.slice(0, 6)} className="course-accordion" />
+            <Accordion
+              items={course.faq ?? faq.slice(0, 6)}
+              className="course-accordion"
+            />
           </section>
         </div>
 
@@ -780,8 +961,9 @@ export default function CourseDetails() {
                   <button
                     key={idx}
                     type="button"
-                    className={`level-pill-btn ${selectedLevelIndex === idx ? "is-selected" : ""}`}
-                    onClick={() => setSelectedLevelIndex(idx)}
+                    className={`level-pill-btn ${levelIndex === idx ? "is-selected" : ""}`}
+                    aria-pressed={levelIndex === idx}
+                    onClick={() => setLevelSelection({ slug, index: idx })}
                   >
                     {t("level")} {idx + 1}
                   </button>
@@ -794,15 +976,37 @@ export default function CourseDetails() {
             </p>
 
             <div className="course-enrollment-price">
-              <del style={{ opacity: 0.55, marginInlineEnd: 8 }}>
-                {course.oldPrice.toLocaleString("en-US")}
-              </del>
-              <strong>{course.price.toLocaleString("en-US")}</strong>
+              {course.oldPrice && (
+                <del style={{ color: "var(--muted)" }}>
+                  {course.oldPrice.toLocaleString("en-US")}
+                </del>
+              )}
+              <strong>{selectedPrice.toLocaleString("en-US")}</strong>
               <span>{copy("EGP", "ج.م")}</span>
               <small className="price-term">{t("perLevel")}</small>
             </div>
 
             <div className="course-price-divider" />
+            {course.scheduleOnRequest && (
+              <div className="course-total-note">
+                <p>
+                  {copy("Selected level: ", "المستوى المختار: ")}
+                  {local(selectedLevel)}
+                </p>
+                <p>
+                  {copy("Complete course: ", "الكورس بالكامل: ")}
+                  {totals.price.toLocaleString("en-US")} {copy("EGP", "ج.م")} ·{" "}
+                  {totals.hours} {copy("hours", "ساعة")} · {totals.sessions}{" "}
+                  {copy("weekly sessions", "محاضرة أسبوعية")}
+                </p>
+                <p>
+                  {copy(
+                    "One 2-hour session per week. Schedule on request.",
+                    "محاضرة أسبوعيًا مدتها ساعتان. المواعيد حسب الطلب.",
+                  )}
+                </p>
+              </div>
+            )}
 
             {/* Included highlights checklist */}
             <ul className="enrollment-features-list">
@@ -821,15 +1025,24 @@ export default function CourseDetails() {
                 },
                 {
                   Icon: Radio,
-                  text: copy("Live online via Google Meet / Zoom", "أونلاين مباشر مع تفاعل حي"),
+                  text: copy(
+                    "Live online via Google Meet / Zoom",
+                    "أونلاين مباشر مع تفاعل حي",
+                  ),
                 },
                 {
                   Icon: Code2,
-                  text: copy("Weekly practical assignments & reviews", "مشاريع وواجبات تطبيقية أسبوعية"),
+                  text: copy(
+                    "Weekly practical assignments & reviews",
+                    "مشاريع وواجبات تطبيقية أسبوعية",
+                  ),
                 },
                 {
                   Icon: Award,
-                  text: copy("Certificate upon project completion", "شهادة إتمام بعد تسليم المشروع"),
+                  text: copy(
+                    "Certificate upon project completion",
+                    "شهادة إتمام بعد تسليم المشروع",
+                  ),
                 },
               ].map(({ Icon, text }, i) => (
                 <li key={i}>
@@ -840,18 +1053,20 @@ export default function CourseDetails() {
             </ul>
 
             <div className="enrollment-action-buttons">
-              <ButtonLink to={`/contact?course=${course.slug}`}>
+              <ButtonLink to={enrollmentUrl}>
                 {copy("Enroll Now / Inquire", "سجّل الآن في الكورس")}
               </ButtonLink>
 
               <a
-                href={`https://wa.me/?text=${whatsappMessage}`}
+                href={whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="whatsapp-enrollment-link"
               >
                 <MessageCircle size={16} />
-                <span>{copy("Quick WhatsApp Inquiry", "استفسار سريع عبر واتساب")}</span>
+                <span>
+                  {copy("Quick WhatsApp Inquiry", "استفسار سريع عبر واتساب")}
+                </span>
               </a>
             </div>
 
@@ -879,7 +1094,7 @@ export default function CourseDetails() {
                 "عندك سؤال عن المواعيد أو طريقة الدفع؟",
               )}
             </p>
-            <Link to={`/contact?course=${course.slug}`} className="help-link">
+            <Link to={enrollmentUrl} className="help-link">
               {copy("Talk to an instructor directly", "تحدث مع المدرب مباشرة")}
               <ArrowUpRight size={14} />
             </Link>
@@ -888,17 +1103,18 @@ export default function CourseDetails() {
       </div>
 
       {/* Floating Bottom Bar for Mobile Devices */}
-      <div className="mobile-sticky-enrollment-bar" aria-label="Quick Enrollment">
+      <div
+        className="mobile-sticky-enrollment-bar"
+        aria-label={copy("Quick Enrollment", "التسجيل السريع")}
+      >
         <div className="mobile-bar-info">
           <strong>{course.name}</strong>
           <span>
-            {course.price.toLocaleString("en-US")} {copy("EGP / level", "ج.م / مستوى")}
+            {selectedPrice.toLocaleString("en-US")}{" "}
+            {copy("EGP / level", "ج.م / مستوى")}
           </span>
         </div>
-        <Link
-          to={`/contact?course=${course.slug}`}
-          className="mobile-bar-cta"
-        >
+        <Link to={enrollmentUrl} className="mobile-bar-cta">
           {copy("Enroll Now", "سجّل الآن")}
           <ArrowUpRight size={14} />
         </Link>
@@ -908,7 +1124,10 @@ export default function CourseDetails() {
       <section className="container section course-related">
         <SectionTitle
           eyebrow={copy("EXPAND YOUR SKILLSET", "اكتشف مساراتك القادمة")}
-          title={copy("There's always an exciting next step.", "خطواتك القادمة في عالم البرمجة.")}
+          title={copy(
+            "There's always an exciting next step.",
+            "خطواتك القادمة في عالم البرمجة.",
+          )}
           action={
             <Link className="text-link" to="/courses">
               {copy("All courses", "كل الكورسات")}

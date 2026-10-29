@@ -28,6 +28,8 @@ i18n.use(initReactI18next).init({
         soon: "Coming soon",
         beginner: "Beginner",
         intermediate: "Intermediate",
+        intermediateBeginner: "Intermediate Beginner",
+        advanced: "Advanced",
       },
     },
     ar: {
@@ -50,6 +52,8 @@ i18n.use(initReactI18next).init({
         soon: "قريبًا",
         beginner: "مبتدئ",
         intermediate: "متوسط",
+        intermediateBeginner: "مبتدئ متقدم",
+        advanced: "متقدم",
       },
     },
   },

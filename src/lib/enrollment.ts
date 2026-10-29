@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { courses } from "../data/courses";
 
 export function buildEnrollmentSchema(
   copy: (en: string, ar: string) => string,
@@ -28,9 +29,13 @@ export function buildEnrollmentSchema(
           copy("Use no more than 100 characters.", "الحد الأقصى ١٠٠ حرف."),
         ),
       age: z.string().min(1, required),
-      course: z.enum(["html", "css", "javascript", "react"], {
-        message: required,
-      }),
+      course: z
+        .string()
+        .refine(
+          (slug) => courses.some((course) => course.slug === slug),
+          required,
+        ),
+      level: z.string().min(1, required),
       experience: z.string().min(1, required),
       method: z.string().min(1, required),
       phone: z
@@ -68,6 +73,21 @@ export function buildEnrollmentSchema(
         ),
     })
     .superRefine((data, ctx) => {
+      const course = courses.find((course) => course.slug === data.course);
+      const level = Number(data.level);
+      if (
+        course &&
+        (!Number.isInteger(level) || level < 1 || level > course.levels.length)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["level"],
+          message: copy(
+            "Choose a valid level for this course.",
+            "اختر مستوى صحيحًا لهذا الكورس.",
+          ),
+        });
+      }
       if (data.age === "under12" || data.age === "12-17") {
         if (data.guardian.length < 2)
           ctx.addIssue({

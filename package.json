@@ -11,6 +11,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "check:browser": "node scripts/check-browser.mjs",
     "check:interactions": "node scripts/check-interactions.mjs",
+    "check:courses": "node scripts/check-professional-courses.mjs",
     "format": "prettier --write src scripts *.json *.ts *.js index.html README.md"
   },
   "dependencies": {

@@ -1,5 +1,4 @@
 import { MobileSlider } from "../components/MobileSlider";
-import ProjectShowcase from "../components/sections/ProjectShowcase";
 import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
@@ -211,7 +210,7 @@ export default function Home() {
             </Link>
           }
         />
-        <MobileSlider className="courses-grid">
+        <MobileSlider className="courses-grid" always>
           {courses.map((c) => (
             <CourseCard key={c.slug} course={c} />
           ))}
@@ -277,7 +276,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <ProjectShowcase />
       <section className="voices-section">
         <div className="container voices-inner">
           <Quote className="quote-icon" size={48} />

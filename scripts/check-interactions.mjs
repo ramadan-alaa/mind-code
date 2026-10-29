@@ -1,7 +1,11 @@
 import { chromium } from "@playwright/test";
 import assert from "node:assert/strict";
 const browser = await chromium.launch({
-  executablePath: process.env.CHROME_PATH || "/usr/bin/google-chrome",
+  executablePath:
+    process.env.CHROME_PATH ||
+    (process.platform === "win32"
+      ? "C:/Program Files/Google/Chrome/Application/chrome.exe"
+      : "/usr/bin/google-chrome"),
   headless: true,
   args: ["--no-sandbox"],
 });
@@ -13,18 +17,18 @@ const origin = process.env.TEST_URL || "http://localhost:5173";
 const results = [];
 await page.goto(origin + "/courses");
 await page.locator("h1").waitFor();
-assert.equal(await page.locator(".course-card").count(), 4);
+assert.equal(await page.locator(".course-card").count(), 8);
 assert.equal(await page.locator(".upcoming-card").count(), 4);
 await page.getByRole("textbox", { name: "Search courses" }).fill("React");
-assert.equal(await page.locator(".course-card").count(), 1);
+assert.equal(await page.locator(".course-card").count(), 2);
 await page.getByRole("textbox", { name: "Search courses" }).fill("no-match");
 assert.equal(await page.locator(".course-card").count(), 0);
 await page.getByRole("button", { name: "Reset filters" }).click();
-assert.equal(await page.locator(".course-card").count(), 4);
+assert.equal(await page.locator(".course-card").count(), 8);
 await page
   .getByLabel("Difficulty", { exact: true })
   .selectOption("intermediate");
-assert.equal(await page.locator(".course-card").count(), 1);
+assert.equal(await page.locator(".course-card").count(), 2);
 await page.getByLabel("Difficulty", { exact: true }).selectOption("all");
 await page.getByLabel("Availability", { exact: true }).selectOption("soon");
 assert.equal(await page.locator(".course-card").count(), 0);
@@ -34,13 +38,19 @@ results.push(
 );
 await page.goto(origin + "/courses/react");
 await page.locator("h1").waitFor();
-assert.equal(await page.locator(".level-list details").count(), 4);
-await page.locator(".level-list details").nth(2).locator("summary").click();
-assert(
-  (await page.locator(".level-list details").nth(2).getAttribute("open")) !==
-    null,
+assert.equal(await page.locator(".curriculum-level").count(), 4);
+await page.locator(".curriculum-trigger").nth(2).click();
+assert.equal(
+  await page
+    .locator(".curriculum-trigger")
+    .nth(2)
+    .getAttribute("aria-expanded"),
+  "true",
 );
-await page.getByRole("link", { name: "Ask about course" }).first().click();
+await page
+  .locator('.course-enrollment-card a[href^="/contact"]')
+  .first()
+  .click();
 await page.locator("#course").waitFor();
 assert.equal(await page.locator("#course").inputValue(), "react");
 results.push("Course levels expand and inquiry preselects course");
@@ -100,13 +110,10 @@ assert.equal(await page.locator("#mobile-nav").count(), 0);
 results.push("Mobile menu navigation and Escape close pass");
 await page.goto(origin + "/");
 await page.locator("h1").waitFor();
-const summary = page.locator(".accordion summary").first();
+const summary = page.locator(".accordion-trigger").first();
 await summary.focus();
 await page.keyboard.press("Enter");
-assert(
-  (await page.locator(".accordion details").first().getAttribute("open")) !==
-    null,
-);
+assert.equal(await summary.getAttribute("aria-expanded"), "true");
 results.push("FAQ keyboard expansion passes");
 // Test an explicitly simulated configuration without writing a real business number to source.
 await page.route("**/src/config/academy.ts", async (route) => {
