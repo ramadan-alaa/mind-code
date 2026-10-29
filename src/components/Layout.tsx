@@ -73,7 +73,7 @@ export default function Layout() {
               }}
               aria-label={copy("Switch to Arabic", "Switch to English")}
             >
-              {ar ? "EN" : "عربي"}
+              {ar ? "EN" : "AR"}
             </button>
             <span className="nav-divider" />
             <button
