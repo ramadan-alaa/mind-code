@@ -161,10 +161,13 @@ export function CourseCard({ course }: { course: Course }) {
       <div className="course-price">
         <small>{copy("Starting at", "يبدأ من")}</small>
         <div>
-          <strong>
-            {course.price.toLocaleString("en-US")}{" "}
-            <span>{copy("EGP", "ج.م")}</span>
-          </strong>
+          <div>
+            <del style={{ opacity: 0.55, marginInlineEnd: 8, fontSize: "0.9em" }}>{course.oldPrice.toLocaleString("en-US")}</del>
+            <strong>
+              {course.price.toLocaleString("en-US")}{" "}
+              <span>{copy("EGP", "ج.م")}</span>
+            </strong>
+          </div>
           <small>{t("perLevel")}</small>
         </div>
       </div>

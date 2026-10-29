@@ -5,6 +5,7 @@ export interface Course {
   color: string;
   symbol: string;
   price: number;
+  oldPrice: number;
   sessions: number;
   hours: number;
   difficulty: "beginner" | "intermediate";
@@ -19,6 +20,7 @@ export const courses: Course[] = [
     color: "#ed744c",
     symbol: "5",
     price: 700,
+    oldPrice: 1000,
     sessions: 4,
     hours: 8,
     difficulty: "beginner",
@@ -47,6 +49,7 @@ export const courses: Course[] = [
     color: "#66a8fb",
     symbol: "3",
     price: 900,
+    oldPrice: 1100,
     sessions: 5,
     hours: 10,
     difficulty: "beginner",
@@ -79,6 +82,7 @@ export const courses: Course[] = [
     color: "#f3d462",
     symbol: "JS",
     price: 1100,
+    oldPrice: 1300,
     sessions: 6,
     hours: 12,
     difficulty: "beginner",
@@ -115,6 +119,7 @@ export const courses: Course[] = [
     color: "#66d8e9",
     symbol: "⚛",
     price: 1300,
+    oldPrice: 1500,
     sessions: 6,
     hours: 12,
     difficulty: "intermediate",
