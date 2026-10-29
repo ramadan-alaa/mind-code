@@ -3870,3 +3870,23 @@ footer {
   }
 }
 
+
+.mobile-slider {
+  padding-bottom: 34px !important;
+  overflow: hidden;
+}
+.mobile-slider .mobile-slide {
+  height: auto;
+  display: flex;
+}
+.mobile-slider .mobile-slide > * {
+  width: 100%;
+  height: auto;
+}
+.mobile-slider .swiper-pagination-bullet {
+  background: #fff;
+  opacity: 0.35;
+}
+.mobile-slider .swiper-pagination-bullet-active {
+  opacity: 1;
+}

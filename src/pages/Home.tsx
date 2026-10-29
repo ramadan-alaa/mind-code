@@ -1,3 +1,4 @@
+import { MobileSlider } from "../components/MobileSlider";
 import ProjectShowcase from "../components/sections/ProjectShowcase";
 import { Link } from "react-router-dom";
 import {
@@ -144,7 +145,7 @@ export default function Home() {
             "مش بس تتعلم تكتب كود. تتعلم تفكر، تبدع، وتحل المشكلات.",
           )}
         />
-        <div className="benefits-grid">
+        <MobileSlider className="benefits-grid">
           {benefits.map(({ icon: Icon, ...b }, i) => (
             <Reveal className="benefit" key={b.en}>
               <div className="benefit-icon">
@@ -155,7 +156,7 @@ export default function Home() {
               <p>{copy(b.de, b.da)}</p>
             </Reveal>
           ))}
-        </div>
+        </MobileSlider>
       </section>
       <section className="tracks-section">
         <div className="container section">
@@ -170,7 +171,7 @@ export default function Home() {
               "ابدأ بتطوير الواجهات. واتطور للخطوة اللي بعدها.",
             )}
           />
-          <div className="tracks-grid">
+          <MobileSlider className="tracks-grid">
             {tracks.map((track, i) => (
               <Reveal
                 key={track.en}
@@ -189,7 +190,7 @@ export default function Home() {
                 )}
               </Reveal>
             ))}
-          </div>
+          </MobileSlider>
         </div>
       </section>
       <section className="section container" id="courses">
@@ -210,11 +211,11 @@ export default function Home() {
             </Link>
           }
         />
-        <div className="courses-grid">
+        <MobileSlider className="courses-grid">
           {courses.map((c) => (
             <CourseCard key={c.slug} course={c} />
           ))}
-        </div>
+        </MobileSlider>
         <p className="pricing-note">
           {copy(
             "Simple, level-by-level pricing. All prices are per level, per student. One live 2-hour session every week.",

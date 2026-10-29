@@ -1,3 +1,4 @@
+import { MobileSlider } from "../components/MobileSlider";
 import { useState, useEffect, useId } from "react";
 import { useParams, Link } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
@@ -915,13 +916,13 @@ export default function CourseDetails() {
             </Link>
           }
         />
-        <div className="related-grid">
+        <MobileSlider className="related-grid">
           {courses
             .filter((c) => c.slug !== slug)
             .map((c) => (
               <CourseCard key={c.slug} course={c} />
             ))}
-        </div>
+        </MobileSlider>
       </section>
     </div>
   );

@@ -1,3 +1,4 @@
+import { MobileSlider } from "../components/MobileSlider";
 import { useState } from "react";
 import { Search, SlidersHorizontal, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -112,11 +113,11 @@ export default function Courses() {
           {copy("learning options", "خيارات للتعلم")}
         </p>
         {current.length > 0 && (
-          <div className="courses-grid">
+          <MobileSlider className="courses-grid">
             {current.map((c) => (
               <CourseCard key={c.slug} course={c} />
             ))}
-          </div>
+          </MobileSlider>
         )}
         {upcoming.length > 0 && (
           <div className="upcoming-grid">
