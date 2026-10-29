@@ -793,6 +793,9 @@ export default function CourseDetails() {
             </p>
 
             <div className="course-enrollment-price">
+              <del style={{ opacity: 0.55, marginInlineEnd: 8 }}>
+                {course.oldPrice.toLocaleString("en-US")}
+              </del>
               <strong>{course.price.toLocaleString("en-US")}</strong>
               <span>{copy("EGP", "ج.م")}</span>
               <small className="price-term">{t("perLevel")}</small>
