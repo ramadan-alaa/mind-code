@@ -1,4 +1,4 @@
-import { Children, useSyncExternalStore, type ReactNode } from "react";
+﻿import { Children, useSyncExternalStore, type ReactNode } from "react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -39,7 +39,7 @@ export function MobileSlider({
       className={`mobile-slider ${className}-slider`}
       modules={[Pagination]}
       pagination={{ clickable: true }}
-      slidesPerView={1.12}
+      slidesPerView={1.18}
       spaceBetween={14}
       dir={document.documentElement.dir === "rtl" ? "rtl" : "ltr"}
     >
