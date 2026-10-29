@@ -216,12 +216,6 @@ export const tracks = [
     available: true,
   },
   {
-    en: "Backend Development",
-    ar: "تطوير الخوادم",
-    icon: "{ }",
-    available: false,
-  },
-  {
     en: "Full Stack Development",
     ar: "تطوير الويب المتكامل",
     icon: "⌘",

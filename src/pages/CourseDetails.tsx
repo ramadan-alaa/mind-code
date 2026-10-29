@@ -1076,14 +1076,6 @@ export default function CourseDetails() {
                 "يتم سداد كل مستوى بشكل منفصل بمرونة تامة. لا يوجد أي إلزام بدفع المسار كاملاً مسبقاً.",
               )}
             </p>
-
-            <div className="course-no-pressure">
-              <Sparkles size={14} />
-              {copy(
-                "Free guidance session before enrollment.",
-                "جلسة استفسار وتوجيه مجانية لتحديد مستواك.",
-              )}
-            </div>
           </Reveal>
 
           {/* Quick Help Card */}
@@ -1135,7 +1127,7 @@ export default function CourseDetails() {
             </Link>
           }
         />
-        <MobileSlider className="related-grid">
+        <MobileSlider className="related-grid" always>
           {courses
             .filter((c) => c.slug !== slug)
             .map((c) => (

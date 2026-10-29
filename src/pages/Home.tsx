@@ -5,10 +5,8 @@ import {
   ArrowRight,
   Radio,
   Code2,
-  Sparkles,
   Route,
   Check,
-  MessageCircle,
   Terminal,
   Layers,
   Quote,
@@ -215,12 +213,7 @@ export default function Home() {
             <CourseCard key={c.slug} course={c} />
           ))}
         </MobileSlider>
-        <p className="pricing-note">
-          {copy(
-            "Simple, level-by-level pricing. All prices are per level, per student. One live 2-hour session every week.",
-            "أسعار واضحة لكل مستوى. كل الأسعار لكل مستوى ولكل طالب. محاضرة مباشرة أسبوعيًا مدتها ساعتان.",
-          )}
-        </p>
+
       </section>
       <section className="journey-section">
         <div className="container section">
@@ -311,10 +304,7 @@ export default function Home() {
               <ArrowRight size={16} />
             </Link>
           </div>
-          <span className="voices-decoration">
-            <MessageCircle size={70} />
-            <Sparkles size={28} />
-          </span>
+
         </div>
       </section>
       <section className="section container faq-section">

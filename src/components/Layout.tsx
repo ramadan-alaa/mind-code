@@ -1,9 +1,18 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
-import { ArrowUpRight, Sun, Moon, Menu, X, Code2 } from "lucide-react";
+import {
+  ArrowUpRight,
+  Sun,
+  Moon,
+  Menu,
+  X,
+  Code2,
+  MessageCircle,
+} from "lucide-react";
 import { Logo, useCopy } from "./ui";
 import { useTranslation as useTranslationBridge } from "react-i18next";
 import { academy } from "../config/academy";
+import { courses } from "../data/courses";
 export default function Layout() {
   const { t, ar, copy } = useCopy();
   const [menu, setMenu] = useState(false);
@@ -27,7 +36,7 @@ export default function Layout() {
     document.documentElement.dataset.theme = theme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#0B0F19" : "#FAFAFB");
+      ?.setAttribute("content", theme === "dark" ? "#10141C" : "#F6F7FA");
     try {
       localStorage.setItem("mindcode-theme", theme);
     } catch {
@@ -125,50 +134,64 @@ export default function Layout() {
       <main id="main">
         <Outlet />
       </main>
-      <footer>
+      <footer className="site-footer">
         <div className="container">
           <div className="footer-main">
             <div className="footer-brand">
               <Logo />
               <p>
-                {copy(academy.tagline, "نبرمج العقول. نبني مستقبلًا أفضل.")}
-                <br />
                 {copy(
-                  "A little curiosity. A world of possibilities.",
-                  "قليل من الفضول. عالم من الفرص.",
+                  "Learn programming with live classes, practical projects, and feedback on your code.",
+                  "اتعلم البرمجة بمحاضرات مباشرة، ومشاريع عملية، ومراجعة على كودك.",
                 )}
               </p>
               <span className="footer-note">
                 <span className="status-dot" />
-                {t("live")} ·{" "}
-                {copy("Made for curious minds", "للعقول المحبة للتعلم")}
+                {t("live")} · {copy("Weekly practice", "تطبيق أسبوعي")}
               </span>
             </div>
-            <div>
+            <div className="footer-navigation">
               <h4>{copy("Explore", "استكشف")}</h4>
               <Link to="/">{t("home")}</Link>
               <Link to="/courses">{t("courses")}</Link>
               <Link to="/about">{t("about")}</Link>
               <Link to="/contact">{t("contact")}</Link>
             </div>
-            <div>
-              <h4>{copy("Start learning", "ابدأ التعلم")}</h4>
-              {["HTML", "CSS", "JavaScript", "React"].map((c) => (
-                <Link key={c} to={`/courses/${c.toLowerCase()}`}>
-                  {c}
-                </Link>
-              ))}
+            <div className="footer-courses">
+              <h4>{copy("Our courses", "كورساتنا")}</h4>
+              <div className="footer-course-links">
+                {courses.map((course) => (
+                  <Link key={course.slug} to={`/courses/${course.slug}`}>
+                    <bdi>{course.name}</bdi>
+                  </Link>
+                ))}
+              </div>
             </div>
             <div className="footer-connect">
-              <h4>{copy("Let’s build your future.", "لنبدأ بناء مستقبلك.")}</h4>
+              <span className="footer-contact-label">
+                <MessageCircle size={18} />
+                {copy("HERE TO HELP", "نساعدك تختار")}
+              </span>
+              <h4>{copy("Find your starting point", "مش عارف تبدأ بإيه؟")}</h4>
               <p>
                 {copy(
                   "Have a question? Let’s find your starting point together.",
                   "عندك سؤال؟ نساعدك تختار نقطة البداية المناسبة.",
                 )}
               </p>
+              {academy.whatsapp && (
+                <a
+                  className="footer-whatsapp"
+                  href={`https://wa.me/${academy.whatsapp}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>{copy("Chat on WhatsApp", "كلمنا على واتساب")}</span>
+                  <ArrowUpRight size={16} />
+                </a>
+              )}
               <Link to="/contact" className="text-link">
-                {copy("Get in touch", "تواصل معنا")}
+                {copy("Enrollment form", "نموذج التسجيل")}
                 <ArrowUpRight size={16} />
               </Link>
             </div>

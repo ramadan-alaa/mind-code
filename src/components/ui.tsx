@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   ArrowRight,
   Clock3,
+  CalendarDays,
   Radio,
   Layers3,
   Plus,
@@ -152,18 +153,29 @@ export function CourseCard({ course }: { course: Course }) {
       <div className="course-facts">
         <span>
           <Layers3 size={14} />
-          {course.levels.length} {t("levels")}
+          <span>
+            {course.levels.length === 1
+              ? copy("1 level", "مستوى واحد")
+              : `${course.levels.length} ${t("levels")}`}
+          </span>
         </span>
         <span>
           <Radio size={14} />
           {t("live")}
         </span>
         <span>
-          <Clock3 size={14} />
-          {course.sessions} {t("sessions")}
+          <CalendarDays size={14} />
+          <span>
+            <bdi>{course.sessions}</bdi> {copy("sessions", "محاضرات")}
+            <small>{copy("per level", "لكل مستوى")}</small>
+          </span>
         </span>
         <span>
-          {course.hours} {t("hours")}
+          <Clock3 size={14} />
+          <span>
+            <bdi>{course.hours}</bdi> {copy("hours", "ساعات")}
+            <small>{copy("per level", "لكل مستوى")}</small>
+          </span>
         </span>
       </div>
       <div className="course-price">

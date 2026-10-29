@@ -9,7 +9,7 @@
   --course-tint: color-mix(in srgb, var(--course-color) 12%, transparent);
 }
 :root[data-theme="light"] .course-detail {
-  --course-ink: color-mix(in srgb, var(--course-color) 48%, #171b28);
+  --course-ink: color-mix(in srgb, var(--course-color) 48%, #172235);
 }
 
 /* --------------------------------------------------------------------------
@@ -205,7 +205,7 @@
   padding: 4px 10px;
   border-radius: 6px;
   background: var(--accent-soft);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(37, 99, 235, 0.25);
 }
 
 .course-main-heading {
@@ -370,7 +370,7 @@
 .badge-feedback {
   bottom: 26px;
   inset-inline-start: -12px;
-  border-color: rgba(168, 85, 247, 0.3);
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .course-code-editor-card {
@@ -785,7 +785,7 @@
   border-radius: 8px;
   background: var(--accent);
   z-index: -1;
-  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.4);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
 }
 
 :root[data-theme="light"] .nav-active-pill {
@@ -972,7 +972,7 @@
 .is-expanded .curriculum-level-badge {
   background: var(--accent-soft);
   color: var(--purple);
-  border-color: rgba(139, 92, 246, 0.25);
+  border-color: rgba(37, 99, 235, 0.25);
 }
 
 .curriculum-title-wrap small {
@@ -1264,7 +1264,7 @@
   border-radius: 6px;
   background: var(--accent-soft);
   color: var(--purple);
-  border: 1px solid rgba(139, 92, 246, 0.2);
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .fit-checklist {
@@ -1496,7 +1496,7 @@
 
 .level-pill-btn.is-selected {
   background: var(--course-color);
-  color: #0b0f19;
+  color: #10141c;
   font-weight: 700;
   border-color: var(--course-ink);
   box-shadow: 0 2px 10px var(--course-color-glow);
@@ -1599,20 +1599,6 @@
   text-align: center;
 }
 
-.course-no-pressure {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  font-size: 11px;
-  color: var(--muted);
-  margin-top: 14px;
-}
-
-.course-no-pressure svg {
-  color: var(--purple);
-}
-
 .course-enrollment-help {
   margin-top: 18px;
   padding: 18px;
@@ -1648,7 +1634,7 @@
   left: 0;
   right: 0;
   z-index: 99;
-  background: rgba(11, 15, 25, 0.94);
+  background: rgba(16, 20, 28, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-top: 1px solid var(--border);

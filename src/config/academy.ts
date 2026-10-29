@@ -1,8 +1,8 @@
 export const academy = {
   name: "MindCode Academy",
   tagline: "Programming Minds. Brighter Futures.",
-  whatsapp: "",
-  phone: "",
+  whatsapp: "201121944524",
+  phone: "01121944524",
   email: "",
   instagramUrl: "",
   facebookUrl: "",

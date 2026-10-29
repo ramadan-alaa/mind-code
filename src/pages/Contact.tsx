@@ -12,11 +12,11 @@ import {
   Camera,
   PanelsTopLeft,
   ArrowUpRight,
-  CalendarDays,
   Info,
   Check,
+  Phone,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useCopy } from "../components/ui";
 import { academy } from "../config/academy";
 import { courses } from "../data/courses";
@@ -26,6 +26,9 @@ export default function Contact() {
   const [params] = useSearchParams();
   const [ready, setReady] = useState(false);
   const [handoff, setHandoff] = useState("");
+  const [reviewFields, setReviewFields] = useState<
+    { label: string; value: string }[]
+  >([]);
   const configured = /^\d{8,15}$/.test(academy.whatsapp);
   const schema = buildEnrollmentSchema(copy);
   const selected = params.get("course");
@@ -112,6 +115,10 @@ export default function Contact() {
           ? copy("WhatsApp", "واتساب")
           : copy("Phone call", "مكالمة هاتفية"),
     };
+    const fields = (Object.keys(labels) as (keyof typeof labels)[])
+      .map((key) => ({ label: labels[key], value: values[key] }))
+      .filter((field) => field.value.trim());
+    setReviewFields(fields);
     setHandoff(
       whatsAppInquiryUrl(
         academy.whatsapp,
@@ -119,16 +126,22 @@ export default function Contact() {
           "MindCode Academy — Enrollment inquiry",
           "مايندكود أكاديمي — استفسار تسجيل",
         ),
-        (Object.keys(labels) as (keyof typeof labels)[]).map((key) => ({
-          label: labels[key],
-          value: values[key],
-        })),
+        [
+          ...fields,
+          {
+            label: copy("Consent", "الموافقة"),
+            value: copy(
+              "Confirmed",
+              "تمت الموافقة على مشاركة البيانات والتواصل",
+            ),
+          },
+        ],
       ) || "",
     );
     setReady(true);
   };
   return (
-    <>
+    <div className="contact-page">
       <SEO en="Contact & enrollment" ar="التواصل والتسجيل" />
       <section className="container page-heading">
         <p className="eyebrow">
@@ -136,9 +149,9 @@ export default function Contact() {
           {copy("LET’S START A CONVERSATION", "خلينا نبدأ الكلام")}
         </p>
         <h1>
-          {copy("Big questions. Small questions.", "أسئلة كبيرة. أسئلة صغيرة.")}
+          {copy("Let’s choose your next step.", "خلينا نختار خطوتك الجاية.")}
           <br />
-          <span>{copy("We’re here for both.", "إحنا هنا ليك.")}</span>
+          <span>{copy("Talk to MindCode.", "تواصل مع مايندكود.")}</span>
         </h1>
         <p>
           {copy(
@@ -149,7 +162,7 @@ export default function Contact() {
       </section>
       <section className="container contact-layout section">
         <aside>
-          <h2>{copy("Say hello.", "قول أهلًا.")}</h2>
+          <h2>{copy("Speak with us directly", "اتكلم معانا مباشرة")}</h2>
           <p>
             {copy(
               "Learner or parent, you’re welcome here. Ask about courses, levels, or available online sessions.",
@@ -162,6 +175,11 @@ export default function Contact() {
                 Icon: MessageCircle,
                 name: copy("WhatsApp", "واتساب"),
                 url: configured ? `https://wa.me/${academy.whatsapp}` : "",
+              },
+              {
+                Icon: Phone,
+                name: academy.phone,
+                url: academy.phone ? `tel:+${academy.whatsapp}` : "",
               },
               {
                 Icon: Mail,
@@ -178,62 +196,40 @@ export default function Contact() {
                 name: copy("Instagram", "إنستجرام"),
                 url: academy.instagramUrl,
               },
-            ].map(({ Icon, name, url }) => (
-              <div className="contact-channel" key={name}>
-                <Icon size={19} />
-                <div>
-                  {url ? (
-                    <a href={url} target="_blank" rel="noreferrer">
-                      {name}
-                      <ArrowUpRight size={15} />
-                    </a>
-                  ) : (
-                    <>
-                      <strong>{name}</strong>
-                      <span>
-                        {copy("Not configured yet", "لم يتم الإعداد بعد")}
-                      </span>
-                    </>
-                  )}
+            ]
+              .filter((channel) => channel.url)
+              .map(({ Icon, name, url }) => (
+                <div className="contact-channel" key={name}>
+                  <Icon size={19} />
+                  <div>
+                    {url ? (
+                      <a href={url} target="_blank" rel="noreferrer">
+                        {name}
+                        <ArrowUpRight size={15} />
+                      </a>
+                    ) : (
+                      <>
+                        <strong>{name}</strong>
+                        <span>
+                          {copy("Not configured yet", "لم يتم الإعداد بعد")}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-          <div className="schedule-card">
-            <CalendarDays size={23} />
-            <h3>{copy("Let’s make time to learn.", "نخصص وقت للتعلم.")}</h3>
-            <p>
-              {copy(
-                "Proposed online teaching slots",
-                "مواعيد تدريس أونلاين مقترحة",
-              )}
-            </p>
-            {selectedCourse?.scheduleOnRequest ? (
-              <p>
-                {copy(
-                  "Schedule on request. One live 2-hour session per week.",
-                  "المواعيد حسب الطلب. محاضرة مباشرة أسبوعيًا مدتها ساعتان.",
-                )}
-              </p>
-            ) : (
-              academy.slots.map((s) => (
-                <div key={s.en}>{s[ar ? "ar" : "en"]}</div>
-              ))
-            )}
-            <small>
-              {copy(
-                "Africa/Cairo time. Subject to confirmation. These are proposed slots, not confirmed active groups.",
-                "بتوقيت القاهرة. تخضع للتأكيد. هذه مواعيد مقترحة وليست مجموعات قائمة مؤكدة.",
-              )}
-            </small>
+              ))}
           </div>
         </aside>
         <div className="form-panel">
-          <h2>{copy("Your first step starts here.", "أول خطوة تبدأ هنا.")}</h2>
+          <div className="contact-form-kicker">
+            <MessageCircle size={18} />
+            {copy("ENROLLMENT INQUIRY", "استفسار عن التسجيل")}
+          </div>
+          <h2>{copy("Tell us a little about yourself", "عرّفنا بنفسك")}</h2>
           <p>
             {copy(
-              "An inquiry, not a commitment. Let’s get to know you.",
-              "مجرد استفسار، بدون التزام. خلينا نتعرف عليك.",
+              "Fill in your details, review your inquiry, then send it to us on WhatsApp.",
+              "املأ بياناتك، وراجع استفسارك، وبعدها ابعته لينا على واتساب.",
             )}
           </p>
           {!configured && (
@@ -264,142 +260,166 @@ export default function Contact() {
               {(
                 [
                   "name",
-                  "guardian",
+                  "phone",
                   "age",
+                  "guardian",
                   "course",
                   "level",
                   "experience",
                   "method",
-                  "phone",
                   "message",
                 ] as const
               ).map((key) => (
-                <div
-                  className={`field ${key === "message" ? "full-field" : ""}`}
-                  key={key}
-                >
-                  <label htmlFor={key}>
-                    {labels[key]}{" "}
-                    {(key === "guardian" &&
-                      !(age === "under12" || age === "12-17")) ||
-                    key === "message" ? (
-                      <span>({copy("optional", "اختياري")})</span>
+                <Fragment key={key}>
+                  {["name", "course", "message"].includes(key) && (
+                    <div className="contact-form-section">
+                      <span>
+                        {key === "name" ? "01" : key === "course" ? "02" : "03"}
+                      </span>
+                      <h3>
+                        {key === "name"
+                          ? copy("Contact details", "بيانات التواصل")
+                          : key === "course"
+                            ? copy("Your course", "تفاصيل الدراسة")
+                            : copy("Additional notes", "ملاحظات إضافية")}
+                      </h3>
+                    </div>
+                  )}
+                  <div
+                    className={`field ${key === "message" ? "full-field" : ""}`}
+                    key={key}
+                  >
+                    <label htmlFor={key}>
+                      {labels[key]}{" "}
+                      {(key === "guardian" &&
+                        !(age === "under12" || age === "12-17")) ||
+                      key === "message" ? (
+                        <span>({copy("optional", "اختياري")})</span>
+                      ) : (
+                        <span aria-hidden="true">*</span>
+                      )}
+                    </label>
+                    {["name", "guardian", "phone"].includes(key) ? (
+                      <input
+                        id={key}
+                        {...register(key)}
+                        type={key === "phone" ? "tel" : "text"}
+                        autoComplete={
+                          key === "name"
+                            ? "name"
+                            : key === "phone"
+                              ? "tel"
+                              : "off"
+                        }
+                        aria-required={
+                          key !== "guardian" ||
+                          age === "under12" ||
+                          age === "12-17"
+                        }
+                        aria-invalid={!!errors[key]}
+                        aria-describedby={
+                          errors[key] ? `${key}-error` : undefined
+                        }
+                        dir={key === "phone" ? "ltr" : undefined}
+                        placeholder={
+                          key === "phone"
+                            ? "01xxxxxxxxx"
+                            : key === "name"
+                              ? copy("Your full name", "اسمك بالكامل")
+                              : undefined
+                        }
+                      />
+                    ) : key === "message" ? (
+                      <textarea
+                        id={key}
+                        rows={4}
+                        {...register(key)}
+                        aria-required={false}
+                        aria-invalid={!!errors[key]}
+                        aria-describedby={
+                          errors[key] ? `${key}-error` : undefined
+                        }
+                      />
                     ) : (
-                      <span aria-hidden="true">*</span>
-                    )}
-                  </label>
-                  {["name", "guardian", "phone"].includes(key) ? (
-                    <input
-                      id={key}
-                      {...register(key)}
-                      type={key === "phone" ? "tel" : "text"}
-                      autoComplete={
-                        key === "name"
-                          ? "name"
-                          : key === "phone"
-                            ? "tel"
-                            : "off"
-                      }
-                      aria-required={
-                        key !== "guardian" ||
-                        age === "under12" ||
-                        age === "12-17"
-                      }
-                      aria-invalid={!!errors[key]}
-                      aria-describedby={
-                        errors[key] ? `${key}-error` : undefined
-                      }
-                      placeholder={key === "phone" ? "+20 …" : undefined}
-                    />
-                  ) : key === "message" ? (
-                    <textarea
-                      id={key}
-                      rows={4}
-                      {...register(key)}
-                      aria-required={false}
-                      aria-invalid={!!errors[key]}
-                      aria-describedby={
-                        errors[key] ? `${key}-error` : undefined
-                      }
-                    />
-                  ) : (
-                    <select
-                      id={key}
-                      {...register(key)}
-                      aria-required={
-                        key !== "guardian" ||
-                        age === "under12" ||
-                        age === "12-17"
-                      }
-                      aria-invalid={!!errors[key]}
-                      aria-describedby={
-                        errors[key] ? `${key}-error` : undefined
-                      }
-                    >
-                      <option value="">
-                        {copy("Please select", "اختر من القائمة")}
-                      </option>
-                      {(key === "age"
-                        ? [
-                            ["under12", copy("Under 12", "أقل من ١٢")],
-                            ["12-17", copy("12–17 years", "١٢–١٧ سنة")],
-                            ["18-24", copy("18–24 years", "١٨–٢٤ سنة")],
-                            ["25+", copy("25+ years", "٢٥ سنة أو أكثر")],
-                          ]
-                        : key === "course"
-                          ? courses.map((c) => [c.slug, c.name])
-                          : key === "level"
-                            ? (selectedCourse?.levels ?? []).map(
-                                (level, index) => [
-                                  String(index + 1),
-                                  `${copy("Level", "المستوى")} ${index + 1}${level.sessions ? ` — ${local(level)}` : ""}`,
-                                ],
-                              )
-                            : key === "experience"
-                              ? [
-                                  [
-                                    "none",
-                                    copy(
-                                      "No experience yet",
-                                      "بدون خبرة سابقة",
-                                    ),
-                                  ],
-                                  [
-                                    "some",
-                                    copy("A little experience", "خبرة بسيطة"),
-                                  ],
-                                  [
-                                    "experienced",
-                                    copy(
-                                      "I’ve built projects before",
-                                      "سبق لي بناء مشاريع",
-                                    ),
-                                  ],
-                                ]
-                              : [
-                                  ["whatsapp", copy("WhatsApp", "واتساب")],
-                                  [
-                                    "phone",
-                                    copy("Phone call", "مكالمة هاتفية"),
-                                  ],
-                                ]
-                      ).map(([v, l]) => (
-                        <option key={v} value={v}>
-                          {l}
+                      <select
+                        id={key}
+                        disabled={key === "level" && !selectedCourse}
+                        {...register(key)}
+                        aria-required={
+                          key !== "guardian" ||
+                          age === "under12" ||
+                          age === "12-17"
+                        }
+                        aria-invalid={!!errors[key]}
+                        aria-describedby={
+                          errors[key] ? `${key}-error` : undefined
+                        }
+                      >
+                        <option value="">
+                          {copy("Please select", "اختر من القائمة")}
                         </option>
-                      ))}
-                    </select>
-                  )}
-                  {errors[key] && (
-                    <span
-                      className="field-error"
-                      id={`${key}-error`}
-                      role="alert"
-                    >
-                      {errors[key]?.message}
-                    </span>
-                  )}
-                </div>
+                        {(key === "age"
+                          ? [
+                              ["under12", copy("Under 12", "أقل من ١٢")],
+                              ["12-17", copy("12–17 years", "١٢–١٧ سنة")],
+                              ["18-24", copy("18–24 years", "١٨–٢٤ سنة")],
+                              ["25+", copy("25+ years", "٢٥ سنة أو أكثر")],
+                            ]
+                          : key === "course"
+                            ? courses.map((c) => [c.slug, c.name])
+                            : key === "level"
+                              ? (selectedCourse?.levels ?? []).map(
+                                  (level, index) => [
+                                    String(index + 1),
+                                    `${copy("Level", "المستوى")} ${index + 1}${level.sessions ? ` — ${local(level)}` : ""}`,
+                                  ],
+                                )
+                              : key === "experience"
+                                ? [
+                                    [
+                                      "none",
+                                      copy(
+                                        "No experience yet",
+                                        "بدون خبرة سابقة",
+                                      ),
+                                    ],
+                                    [
+                                      "some",
+                                      copy("A little experience", "خبرة بسيطة"),
+                                    ],
+                                    [
+                                      "experienced",
+                                      copy(
+                                        "I’ve built projects before",
+                                        "سبق لي بناء مشاريع",
+                                      ),
+                                    ],
+                                  ]
+                                : [
+                                    ["whatsapp", copy("WhatsApp", "واتساب")],
+                                    [
+                                      "phone",
+                                      copy("Phone call", "مكالمة هاتفية"),
+                                    ],
+                                  ]
+                        ).map(([v, l]) => (
+                          <option key={v} value={v}>
+                            {l}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {errors[key] && (
+                      <span
+                        className="field-error"
+                        id={`${key}-error`}
+                        role="alert"
+                      >
+                        {errors[key]?.message}
+                      </span>
+                    )}
+                  </div>
+                </Fragment>
               ))}
             </div>
             <label className="consent-label">
@@ -429,7 +449,7 @@ export default function Contact() {
               )}
             </p>
             <button className="button" type="submit">
-              {copy("Review inquiry", "مراجعة الاستفسار")}
+              {copy("Review WhatsApp inquiry", "مراجعة رسالة واتساب")}
               <ArrowUpRight size={17} />
             </button>
             {ready && (
@@ -437,13 +457,24 @@ export default function Contact() {
                 <Check size={20} />
                 <div>
                   <strong>
-                    {copy("Your inquiry is ready.", "استفسارك جاهز.")}
+                    {copy(
+                      "Review your details before sending",
+                      "راجع بياناتك قبل الإرسال",
+                    )}
                   </strong>
+                  <dl className="inquiry-review">
+                    {reviewFields.map((field) => (
+                      <div key={field.label}>
+                        <dt>{field.label}</dt>
+                        <dd dir="auto">{field.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
                   {configured ? (
                     <p>
                       {copy(
-                        "Review and send your message in WhatsApp.",
-                        "راجع وأرسل رسالتك في واتساب.",
+                        "The button opens WhatsApp with these details addressed to MindCode. Press Send in WhatsApp to deliver your inquiry.",
+                        "الزر هيفتح واتساب على رقم مايندكود بالبيانات دي. اضغط إرسال داخل واتساب علشان استفسارك يوصلنا.",
                       )}
                     </p>
                   ) : (
@@ -461,8 +492,11 @@ export default function Contact() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      {copy("Continue to WhatsApp", "المتابعة إلى واتساب")}
-                      <ArrowUpRight size={16} />
+                      {copy(
+                        "Open WhatsApp & send",
+                        "افتح واتساب وابعت الرسالة",
+                      )}
+                      <MessageCircle size={18} />
                     </a>
                   ) : (
                     <button className="button" type="button" disabled>
@@ -475,6 +509,6 @@ export default function Contact() {
           </form>
         </div>
       </section>
-    </>
+    </div>
   );
 }
