@@ -1,17 +1,15 @@
 export const academy = {
   name: "MindCode Academy",
   tagline: "Programming Minds. Brighter Futures.",
-  whatsapp: "201121944524",
-  phone: "01121944524",
-  email: "",
-  instagramUrl: "",
-  facebookUrl: "",
+  whatsapp: "201555401852",
+  phone: "01555401852",
+  email: "mind.code.academy.01@gmail.com",
+  instagramUrl: "https://www.instagram.com/mind_code_academy/",
+  facebookUrl: "https://www.facebook.com/profile.php?id=61596611852882",
   currency: "EGP",
   teachingFormat: "Live online",
   timezone: "Africa/Cairo",
   slots: [
-    { en: "Monday · 5:30–7:30 PM", ar: "الاثنين · ٥:٣٠–٧:٣٠ مساءً" },
-    { en: "Wednesday · 6:00–8:00 PM", ar: "الأربعاء · ٦:٠٠–٨:٠٠ مساءً" },
-    { en: "Thursday · 5:30–7:30 PM", ar: "الخميس · ٥:٣٠–٧:٣٠ مساءً" },
+    { en: "Available anytime · Flexible scheduling", ar: "متاح طوال الوقت · مواعيد مرنة" },
   ],
 };
