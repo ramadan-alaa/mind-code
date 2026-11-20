@@ -1,5 +1,6 @@
 import { professionalCourses } from "./professionalCourses";
 import { programmingPrograms } from "./programmingPrograms";
+import { backendProgram } from "./backendProgram";
 export type Localized = { en: string; ar: string };
 export interface CourseSession {
   number: number;
@@ -19,6 +20,7 @@ export interface CourseLevel extends Localized {
   prerequisites?: Localized;
   slug?: string;
   outcomes?: Localized[];
+  overview?: Localized;
 }
 export const courseCategories = {
   fundamentals: { en: "Frontend Fundamentals", ar: "أساسيات الواجهات" },
@@ -30,7 +32,8 @@ export const courseCategories = {
 export type CourseCategory = keyof typeof courseCategories;
 export interface Course {
   program?: boolean;
-  ageRecommendation?: string;
+  ageRecommendation?: Localized;
+  localizedName?: Localized;
   slug: string;
   name: string;
   color: string;
@@ -192,6 +195,7 @@ export const courses: Course[] = [
   },
   ...professionalCourses,
   ...programmingPrograms,
+  backendProgram,
 ];
 export const courseCategory = (course: Course): CourseCategory =>
   course.category ??

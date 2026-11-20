@@ -29,6 +29,7 @@ import {
   courseCategories,
   courseCategory,
   courseTotals,
+  type Localized,
 } from "../data/courses";
 import { academy } from "../config/academy";
 import {
@@ -39,8 +40,12 @@ import {
   Reveal,
   SectionTitle,
   useCopy,
+  TechnicalText,
+  isolateTechnicalText,
 } from "../components/ui";
 import CourseCurriculum from "../components/courses/CourseCurriculum";
+import CourseHeroPreview from "../components/courses/CourseHeroPreview";
+import { coursePreviews } from "../data/coursePreviews";
 import { courseProjectsMap } from "../data/courseProjects";
 import { faq } from "../data/faq";
 import SEO from "../components/SEO";
@@ -151,19 +156,11 @@ function SharedCourseDetails() {
   const { slug, levelSlug } = useParams();
   const navigate = useNavigate();
   const course = courses.find((c) => c.slug === slug);
-  const { copy: siteCopy, t: siteT, local: siteLocal } = useCopy();
-  const copy = course?.program ? (_en: string, ar: string) => ar : siteCopy;
-  const local = course?.program
-    ? (value: import("../data/courses").Localized) => value.ar
-    : siteLocal;
-  const t = (key: string) =>
-    siteT(key, { lng: course?.program ? "ar" : undefined });
+  const { copy, t, local, ar, courseName } = useCopy();
   const reduce = useReducedMotion();
 
   // State
-  const [activeTab, setActiveTab] = useState<"code" | "preview">(
-    course?.program ? "preview" : "code",
-  );
+  const [activeTab, setActiveTab] = useState<"code" | "preview">("code");
   const [copied, setCopied] = useState(false);
   const [activeNav, setActiveNav] = useState("curriculum");
   const [levelSelection, setLevelSelection] = useState({ slug, index: 0 });
@@ -209,23 +206,23 @@ function SharedCourseDetails() {
 
   if (!course) return <NotFound />;
 
-  const snippetInfo = (course.program
+  const name = courseName(course);
+  const renderText = (value: string) =>
+    course.program ? <TechnicalText>{value}</TechnicalText> : value;
+  const content = (value: Localized) => renderText(local(value));
+  const names = course.localizedName ?? { en: course.name, ar: course.name };
+  const ageRecommendation = course.ageRecommendation
+    ? local(course.ageRecommendation)
+    : "";
+  const programPreview = coursePreviews[course.slug]?.[selectedLevelIndex];
+  const snippetInfo = (programPreview
     ? {
-        fileName: course.slug === "python" ? "practice.py" : "blocks",
+        fileName: programPreview.fileName,
         code:
-          course.slug === "python"
-            ? [
-                'name = input("Name: ")',
-                "for i in range(3):",
-                '    print("Hello", name)',
-              ]
-            : [
-                "عند بداية المشهد",
-                "  حرّك الشخصية",
-                "  كرر الحركة",
-                "  جرّب النتيجة وعدّل الخطوات",
-              ],
-        previewHtml: course.description.ar,
+          programPreview.kind === "code"
+            ? programPreview.code
+            : programPreview.blocks.map((block) => local(block.label)),
+        previewHtml: local(course.description),
       }
     : snippets[course.slug]) || {
     fileName:
@@ -281,9 +278,36 @@ function SharedCourseDetails() {
   const selectedLevel = course.levels[levelIndex];
   const selectedPrice = selectedLevel.price ?? course.price;
   const selectedOldPrice = selectedLevel.oldPrice ?? course.oldPrice;
-  const pageTitle = `${course.name} — المستوى ${levelIndex + 1}: ${selectedLevel.ar}`;
-  const pageDescription = `${course.description.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${course.sessions} محاضرات، ${course.hours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`;
   const totals = courseTotals(course);
+  const isBackendOverview = course.slug === "backend" && !levelSlug;
+  const overview = isBackendOverview
+    ? course.description
+    : (selectedLevel.overview ?? course.description);
+  const outcomes = isBackendOverview
+    ? course.outcomes
+    : course.program
+      ? selectedLevel.outcomes
+      : course.outcomes;
+  const pageTitle = {
+    en: isBackendOverview
+      ? `${names.en} — Backend track`
+      : `${names.en} — Level ${levelIndex + 1}: ${selectedLevel.en}`,
+    ar: isolateTechnicalText(
+      isBackendOverview
+        ? `${names.ar} — مسار تطوير الـBack-End`
+        : `${names.ar} — المستوى ${levelIndex + 1}: ${selectedLevel.ar}`,
+    ),
+  };
+  const pageDescription = {
+    en: isBackendOverview
+      ? `Learn C# and ASP.NET Core backend development online: ${course.levels.length} levels, ${totals.sessions} sessions and ${totals.hours} hours. Each level costs ${course.price.toLocaleString("en-US")} EGP; the complete track costs ${totals.price.toLocaleString("en-US")} EGP.`
+      : `${overview.en} Level ${levelIndex + 1}: ${selectedLevel.en}, ${course.sessions} sessions, ${course.hours} hours, ${selectedPrice.toLocaleString("en-US")} EGP per learner and level.`,
+    ar: isolateTechnicalText(
+      isBackendOverview
+        ? `تعلم تطوير الـBack-End باستخدام C# وASP.NET Core أونلاين: ٤ مستويات، ${totals.sessions} محاضرة، ${totals.hours} ساعة. كل مستوى بـ${course.price.toLocaleString("en-US")} جنيه، والمسار بالكامل بـ${totals.price.toLocaleString("en-US")} جنيه.`
+        : `${overview.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${course.sessions} محاضرات، ${course.hours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`,
+    ),
+  };
   const enrollmentUrl = `/contact?course=${course.slug}&level=${levelIndex + 1}`;
 
   const handleCopyCode = () => {
@@ -295,8 +319,8 @@ function SharedCourseDetails() {
 
   const whatsappMessage = encodeURIComponent(
     copy(
-      `Hello MindCode Academy, I would like to inquire about ${course.name}, level ${levelIndex + 1}, and its schedule.`,
-      `مرحباً مايندكود أكاديمي، أود الاستفسار عن كورس ${course.name}، المستوى ${levelIndex + 1}، ومواعيد المحاضرات القادمة.`,
+      `Hello MindCode Academy, I would like to inquire about ${name}, level ${levelIndex + 1}, and its schedule.`,
+      `مرحباً مايندكود أكاديمي، أود الاستفسار عن كورس ${name}، المستوى ${levelIndex + 1}، ومواعيد المحاضرات القادمة.`,
     ),
   );
   const whatsappUrl = /^\d{8,15}$/.test(academy.whatsapp)
@@ -306,8 +330,8 @@ function SharedCourseDetails() {
   return (
     <div
       className="course-detail"
-      lang={course.program ? "ar" : undefined}
-      dir={course.program ? "rtl" : undefined}
+      lang={course.program ? (ar ? "ar" : "en") : undefined}
+      dir={course.program ? (ar ? "rtl" : "ltr") : undefined}
       style={
         {
           "--course-color": course.color,
@@ -317,10 +341,14 @@ function SharedCourseDetails() {
       }
     >
       <SEO
-        en={course.program ? pageTitle : `${course.name} Course`}
-        ar={course.program ? pageTitle : `كورس ${course.name} التفاعلي`}
-        descriptionEn={course.program ? pageDescription : course.description.en}
-        descriptionAr={course.program ? pageDescription : course.description.ar}
+        en={course.program ? pageTitle.en : `${course.name} Course`}
+        ar={course.program ? pageTitle.ar : `كورس ${course.name} التفاعلي`}
+        descriptionEn={
+          course.program ? pageDescription.en : course.description.en
+        }
+        descriptionAr={
+          course.program ? pageDescription.ar : course.description.ar
+        }
       />
 
       {/* Hero Ambient Glow Layer */}
@@ -341,7 +369,7 @@ function SharedCourseDetails() {
             <ArrowLeft size={15} />
             {copy("All courses", "كل الكورسات")}
             <span>/</span>
-            <bdi>{course.name}</bdi>
+            <bdi>{name}</bdi>
           </Link>
         </motion.div>
 
@@ -366,27 +394,39 @@ function SharedCourseDetails() {
 
             <h1 className="course-main-heading">
               <span className="heading-sub">
-                {course.program
-                  ? `المستوى ${levelIndex + 1}`
-                  : copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
+                {isBackendOverview
+                  ? copy(
+                      "Backend track — 4 levels",
+                      "مسار تطوير الـBack-End — ٤ مستويات",
+                    )
+                  : course.program
+                    ? `${t("level")} ${levelIndex + 1}`
+                    : copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
               </span>
               <br />
               {copy("Build with", "ابنِ مشروعاتك بـ")}{" "}
               <span className="course-name-highlight">
-                <bdi>{course.name}</bdi>
+                <bdi>{name}</bdi>
               </span>
             </h1>
 
             <p className="course-main-desc">
-              {course.program && <>{selectedLevel.ar} — </>}
-              {local(course.description)}
+              {course.program && !isBackendOverview && (
+                <>{content(selectedLevel)} — </>
+              )}
+              {content(overview)}
             </p>
 
             {/* Quick value proposition tags */}
             <div className="hero-feature-tags">
               <span>
                 <Check size={14} />
-                {copy("Live 1-on-1 Mentorship", "محاضرات لايف وتطبيق عملي")}
+                {copy(
+                  course.program
+                    ? "Live sessions and practical work"
+                    : "Live 1-on-1 Mentorship",
+                  "محاضرات لايف وتطبيق عملي",
+                )}
               </span>
               <span>
                 <Check size={14} />
@@ -395,7 +435,7 @@ function SharedCourseDetails() {
               <span>
                 <Check size={14} />
                 {course.program
-                  ? "مجموعات صغيرة أونلاين"
+                  ? copy("Small online groups", "مجموعات صغيرة أونلاين")
                   : copy("Accredited Certificate", "شهادة إتمام معتمدة")}
               </span>
             </div>
@@ -463,12 +503,18 @@ function SharedCourseDetails() {
               <Award size={13} />
               <span>
                 {course.program
-                  ? "مراجعة وتطبيق مع المدرب"
+                  ? copy(
+                      "Instructor-guided review and practice",
+                      "مراجعة وتطبيق مع المدرب",
+                    )
                   : copy("Code Review Included", "مراجعة كود أسبوعية")}
               </span>
             </motion.div>
 
-            <div className="course-code-editor-card">
+            <div
+              className="course-code-editor-card"
+              dir={course.program ? "ltr" : undefined}
+            >
               {/* Window Header with Tabs */}
               <div className="course-editor-topbar">
                 <div className="window-dots" aria-hidden="true">
@@ -477,18 +523,75 @@ function SharedCourseDetails() {
                   <span className="dot dot-green" />
                 </div>
 
-                <div className="editor-tabs" role="tablist">
+                <div
+                  className="editor-tabs"
+                  role="tablist"
+                  aria-label={
+                    programPreview
+                      ? copy("Course example preview", "معاينة مثال الكورس")
+                      : undefined
+                  }
+                  onKeyDown={
+                    programPreview
+                      ? (event) => {
+                          if (
+                            ![
+                              "ArrowLeft",
+                              "ArrowRight",
+                              "Home",
+                              "End",
+                            ].includes(event.key)
+                          )
+                            return;
+                          event.preventDefault();
+                          const next =
+                            event.key === "Home"
+                              ? "code"
+                              : event.key === "End"
+                                ? "preview"
+                                : activeTab === "code"
+                                  ? "preview"
+                                  : "code";
+                          setActiveTab(next);
+                          document
+                            .getElementById(
+                              next === "code" ? codeTabId : previewTabId,
+                            )
+                            ?.focus();
+                        }
+                      : undefined
+                  }
+                >
                   <button
                     type="button"
                     role="tab"
                     id={codeTabId}
                     aria-selected={activeTab === "code"}
+                    tabIndex={
+                      programPreview
+                        ? activeTab === "code"
+                          ? 0
+                          : -1
+                        : undefined
+                    }
                     aria-controls={`${codeTabId}-panel`}
                     className={`editor-tab ${activeTab === "code" ? "is-active" : ""}`}
                     onClick={() => setActiveTab("code")}
                   >
                     <FileCode2 size={13} />
-                    <span>{snippetInfo.fileName}</span>
+                    <span
+                      dir={
+                        programPreview && programPreview.kind !== "code"
+                          ? ar
+                            ? "rtl"
+                            : "ltr"
+                          : undefined
+                      }
+                    >
+                      {programPreview && programPreview.kind !== "code"
+                        ? local(programPreview.title)
+                        : snippetInfo.fileName}
+                    </span>
                   </button>
 
                   <button
@@ -496,12 +599,23 @@ function SharedCourseDetails() {
                     role="tab"
                     id={previewTabId}
                     aria-selected={activeTab === "preview"}
+                    tabIndex={
+                      programPreview
+                        ? activeTab === "preview"
+                          ? 0
+                          : -1
+                        : undefined
+                    }
                     aria-controls={`${previewTabId}-panel`}
                     className={`editor-tab ${activeTab === "preview" ? "is-active" : ""}`}
                     onClick={() => setActiveTab("preview")}
                   >
                     <Play size={12} />
-                    <span>{copy("Live Outcome", "النتيجة التفاعلية")}</span>
+                    <span>
+                      {programPreview
+                        ? copy("Example result", "نتيجة توضيحية")
+                        : copy("Live Outcome", "النتيجة التفاعلية")}
+                    </span>
                   </button>
                 </div>
 
@@ -509,8 +623,16 @@ function SharedCourseDetails() {
                   type="button"
                   onClick={handleCopyCode}
                   className="editor-copy-btn"
-                  title={copy("Copy code", "نسخ الكود")}
-                  aria-label={copy("Copy snippet", "نسخ الكود")}
+                  title={
+                    programPreview && programPreview.kind !== "code"
+                      ? copy("Copy sequence", "نسخ التسلسل")
+                      : copy("Copy code", "نسخ الكود")
+                  }
+                  aria-label={
+                    programPreview && programPreview.kind !== "code"
+                      ? copy("Copy sequence", "نسخ التسلسل")
+                      : copy("Copy snippet", "نسخ الكود")
+                  }
                 >
                   {copied ? <CheckCheck size={14} /> : <Copy size={14} />}
                 </button>
@@ -532,16 +654,20 @@ function SharedCourseDetails() {
                       className="editor-code-panel"
                       dir="ltr"
                     >
-                      <pre>
-                        {snippetInfo.code.map((line, i) => (
-                          <div key={i} className="editor-line">
-                            <span className="line-num">
-                              {String(i + 1).padStart(2, "0")}
-                            </span>
-                            <code className="line-text">{line || " "}</code>
-                          </div>
-                        ))}
-                      </pre>
+                      {programPreview ? (
+                        <CourseHeroPreview preview={programPreview} />
+                      ) : (
+                        <pre>
+                          {snippetInfo.code.map((line, i) => (
+                            <div key={i} className="editor-line">
+                              <span className="line-num">
+                                {String(i + 1).padStart(2, "0")}
+                              </span>
+                              <code className="line-text">{line || " "}</code>
+                            </div>
+                          ))}
+                        </pre>
+                      )}
                     </motion.div>
                   ) : (
                     <motion.div
@@ -555,26 +681,36 @@ function SharedCourseDetails() {
                       transition={{ duration: 0.2 }}
                       className="editor-preview-panel"
                     >
-                      <div className="preview-illustration">
-                        <TechIcon course={course} />
-                        <h4>
-                          {course.name} —{" "}
-                          {copy("Interactive Showcase", "عرض تفاعلي")}
-                        </h4>
-                        <p>{snippetInfo.previewHtml}</p>
-                        <div className="preview-badge-row">
-                          <span className="badge-tag">
-                            <Check size={12} />{" "}
-                            {copy("Clean Architecture", "كود نظيف ومعياري")}
-                          </span>
-                          <span className="badge-tag">
-                            <Check size={12} />{" "}
-                            {course.program
-                              ? "تطبيق بإرشاد المدرب"
-                              : copy("Production Ready", "جاهز للإنتاج")}
-                          </span>
+                      {programPreview ? (
+                        <CourseHeroPreview
+                          preview={programPreview}
+                          resultOnly
+                        />
+                      ) : (
+                        <div className="preview-illustration">
+                          <TechIcon course={course} />
+                          <h4>
+                            {course.name} —{" "}
+                            {copy("Interactive Showcase", "عرض تفاعلي")}
+                          </h4>
+                          <p>{snippetInfo.previewHtml}</p>
+                          <div className="preview-badge-row">
+                            <span className="badge-tag">
+                              <Check size={12} />{" "}
+                              {copy("Clean Architecture", "كود نظيف ومعياري")}
+                            </span>
+                            <span className="badge-tag">
+                              <Check size={12} />{" "}
+                              {course.program
+                                ? copy(
+                                    "Instructor-guided practice",
+                                    "تطبيق بإرشاد المدرب",
+                                  )
+                                : copy("Production Ready", "جاهز للإنتاج")}
+                            </span>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -590,7 +726,9 @@ function SharedCourseDetails() {
                 </div>
                 <div className="status-tags">
                   <span>UTF-8</span>
-                  <span>{course.name}</span>
+                  <span>
+                    {programPreview ? programPreview.fileName : course.name}
+                  </span>
                 </div>
               </div>
             </div>
@@ -624,16 +762,20 @@ function SharedCourseDetails() {
             },
             {
               Icon: CalendarDays,
-              value: `${course.sessions}`,
-              label: t("sessions"),
+              value: `${isBackendOverview ? totals.sessions : course.sessions}`,
+              label: isBackendOverview
+                ? copy("Total sessions", "إجمالي المحاضرات")
+                : t("sessions"),
               sub: course.program
-                ? "ساعتين لكل محاضرة"
+                ? copy("2 hours per session", "ساعتين لكل محاضرة")
                 : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
             },
             {
               Icon: Clock3,
-              value: `${course.hours}`,
-              label: t("hours"),
+              value: `${isBackendOverview ? totals.hours : course.hours}`,
+              label: isBackendOverview
+                ? copy("Total hours", "إجمالي الساعات")
+                : t("hours"),
               sub: copy("Intensive learning", "تدريب وتطبيق مركز"),
             },
             {
@@ -641,7 +783,7 @@ function SharedCourseDetails() {
               value: copy("Live Cohort", "مجموعات تفاعلية"),
               label: copy("Direct Instructor Access", "تفاعل مباشر مع المدرب"),
               sub: course.program
-                ? "مجموعات صغيرة"
+                ? copy("Small groups", "مجموعات صغيرة")
                 : copy("Max 6-8 students", "عدد محدود لكل دفعة"),
             },
           ].map(({ Icon, value, label, sub }, idx) => (
@@ -729,7 +871,9 @@ function SharedCourseDetails() {
               </p>
               <h2>
                 {copy(
-                  "One level. One step closer to mastery.",
+                  course.program
+                    ? "Every level is another step in learning to code."
+                    : "One level. One step closer to mastery.",
                   course.program
                     ? "كل مستوى خطوة جديدة في تعلم البرمجة."
                     : "كل مستوى يقرّبك لهدفك الاحترافي.",
@@ -737,9 +881,11 @@ function SharedCourseDetails() {
               </h2>
               <p className="course-section-description">
                 {copy(
-                  "Structured into manageable levels. You can enroll level by level with complete flexibility, accompanied by weekly assignments and direct mentor code reviews.",
                   course.program
-                    ? "المنهج مقسم لمستويين. كل مستوى فيه شرح وتطبيق ومراجعة مع المدرب ومشروع عملي صغير."
+                    ? `The program has ${course.levels.length} levels. Each level includes explanations, practical work, instructor review and a small project.`
+                    : "Structured into manageable levels. You can enroll level by level with complete flexibility, accompanied by weekly assignments and direct mentor code reviews.",
+                  course.program
+                    ? `${course.levels.length === 2 ? "المنهج مقسم لمستويين" : `المنهج مقسم لـ${course.levels.length} مستويات`}. كل مستوى فيه شرح وتطبيق ومراجعة مع المدرب ومشروع عملي صغير.`
                     : "المنهج مقسم إلى مستويات واضحة. يمكنك دراسة كل مستوى بشكل منفصل وبمرونة كاملة، مع تدريبات أسبوعية ومراجعة دورية من المدرب.",
                 )}
               </p>
@@ -747,22 +893,40 @@ function SharedCourseDetails() {
 
             {course.program && (
               <div className="course-path-card">
-                <h3>تفاصيل المستوى {levelIndex + 1}</h3>
+                <h3>
+                  {isBackendOverview
+                    ? copy("Track details", "تفاصيل المسار")
+                    : copy(
+                        `Level ${levelIndex + 1} details`,
+                        `تفاصيل المستوى ${levelIndex + 1}`,
+                      )}
+                </h3>
                 <p>
-                  السن المقترح: {course.ageRecommendation}. السن استرشادي؛
-                  بنختار المستوى حسب استعداد الطالب وخبرته.
+                  {copy(
+                    `Recommended age: ${ageRecommendation}. Age is a guideline; placement depends on the learner’s readiness and experience.`,
+                    `السن المقترح: ${ageRecommendation}. السن استرشادي؛ بنختار المستوى حسب استعداد الطالب وخبرته.`,
+                  )}
                 </p>
-                <p>كل محاضرة ساعتين، فيها شرح وتطبيق ومراجعة مع المدرب.</p>
+                <p>
+                  {copy(
+                    "Each two-hour session includes explanation, practice and instructor review.",
+                    "كل محاضرة ساعتين، فيها شرح وتطبيق ومراجعة مع المدرب.",
+                  )}
+                </p>
                 {course.slug === "scratchjr" && (
                   <p>
-                    الساعتين متقسمين لأنشطة قصيرة مناسبة للسن، مع فواصل راحة
-                    منتظمة؛ عشان الطفل يتعلم على راحته ويحافظ على تركيزه.
+                    {copy(
+                      "The two hours are divided into short, age-appropriate activities with regular breaks so children can learn comfortably and stay focused.",
+                      "الساعتين متقسمين لأنشطة قصيرة مناسبة للسن، مع فواصل راحة منتظمة؛ عشان الطفل يتعلم على راحته ويحافظ على تركيزه.",
+                    )}
                   </p>
                 )}
                 {course.slug === "python" && (
                   <p>
-                    المسار تمهيدي، والمستويين مع بعض ٢٠ ساعة لبناء أساس وتطبيقات
-                    صغيرة. الموضوعات التمهيدية ليها أمثلة قصيرة وموجهة. مرجعنا:{" "}
+                    {copy(
+                      "This introductory program provides 20 hours across two levels to build a foundation and small applications. Introductory topics use short, guided examples. Our reference:",
+                      "المسار تمهيدي، والمستويين مع بعض ٢٠ ساعة لبناء أساس وتطبيقات صغيرة. الموضوعات التمهيدية ليها أمثلة قصيرة وموجهة. مرجعنا:",
+                    )}{" "}
                     <a
                       className="text-link"
                       href="https://www.w3schools.com/python/"
@@ -774,15 +938,19 @@ function SharedCourseDetails() {
                     .
                   </p>
                 )}
-                <nav aria-label="مستويات البرنامج">
+                <nav aria-label={copy("Program levels", "مستويات البرنامج")}>
                   {course.levels.map((level, i) => (
                     <p key={level.id}>
                       <Link
                         className="text-link"
-                        aria-current={i === levelIndex ? "page" : undefined}
+                        aria-current={
+                          !isBackendOverview && i === levelIndex
+                            ? "page"
+                            : undefined
+                        }
                         to={`/courses/${course.slug}/${level.slug}`}
                       >
-                        المستوى {i + 1} — {level.ar}
+                        {t("level")} {i + 1} — {content(level)}
                       </Link>
                     </p>
                   ))}
@@ -800,10 +968,25 @@ function SharedCourseDetails() {
               <div className="course-path-card">
                 <Link
                   className="text-link"
-                  to={`/courses/${course.slug}/${course.levels[levelIndex === 0 ? 1 : 0].slug}`}
+                  to={`/courses/${course.slug}/${course.levels[levelIndex < course.levels.length - 1 ? levelIndex + 1 : 0].slug}`}
                 >
-                  {levelIndex === 0 ? "اكتشف المستوى 2" : "راجع المستوى الأول"}
+                  {levelIndex < course.levels.length - 1
+                    ? copy(
+                        `Explore level ${levelIndex + 2}`,
+                        `اكتشف المستوى ${levelIndex + 2}`,
+                      )
+                    : copy("Review the first level", "راجع المستوى الأول")}
                 </Link>
+                {course.slug === "backend" && levelSlug && (
+                  <p>
+                    <Link className="text-link" to="/courses/backend">
+                      {copy(
+                        "Backend track overview",
+                        "نظرة عامة على مسار الـBack-End",
+                      )}
+                    </Link>
+                  </p>
+                )}
               </div>
             )}
             {course.progression && (
@@ -825,7 +1008,9 @@ function SharedCourseDetails() {
               <BookOpen size={16} />
               <span>
                 {copy(
-                  "Not sure which level to start with? We conduct a free 10-minute diagnostic session to place you in the perfect level.",
+                  course.program
+                    ? "Not sure where to start? Ask us and we will choose a level together based on your experience and readiness."
+                    : "Not sure which level to start with? We conduct a free 10-minute diagnostic session to place you in the perfect level.",
                   course.program
                     ? "مش متأكد تبدأ من أنهي مستوى؟ اسألنا ونختار مع بعض حسب خبرتك واستعدادك."
                     : "مش متأكد تبدأ من أنهي مستوى؟ بنعملك جلسة تقييم سريعة مجانية لاختيار المستوى الأنسب لمستواك الحالي.",
@@ -849,7 +1034,9 @@ function SharedCourseDetails() {
               </h2>
               <p className="course-section-description">
                 {copy(
-                  "You don't just watch tutorials. You build end-to-end practical applications from scratch that you can proudly showcase in interviews.",
+                  course.program
+                    ? "Build a small project with instructor guidance, test it, fix errors and review what you learned through a practical assessment."
+                    : "You don't just watch tutorials. You build end-to-end practical applications from scratch that you can proudly showcase in interviews.",
                   course.program
                     ? "هننفذ مشروع صغير بإرشاد المدرب، ونجربه ونصلح الأخطاء ونراجع اللي اتعلمناه بتقييم عملي."
                     : "مش مجرد شروحات نظرية؛ هتبني مشاريع متكاملة من الصفر بنفسك، تقدر تضيفها لسيرتك الذاتية وتستعرضها في مقابلات العمل.",
@@ -871,8 +1058,8 @@ function SharedCourseDetails() {
                     <span className="project-tag-pill">{local(proj.tag)}</span>
                     <Laptop size={18} className="project-icon" />
                   </div>
-                  <h3>{local(proj.title)}</h3>
-                  <p>{local(proj.description)}</p>
+                  <h3>{content(proj.title)}</h3>
+                  <p>{content(proj.description)}</p>
                   <div className="project-card-footer">
                     <span className="project-feature-label">
                       <Check size={13} />
@@ -909,13 +1096,16 @@ function SharedCourseDetails() {
                   {copy("Who is this course for?", "الكورس ده مصمم لمين؟")}
                 </h3>
                 <p>
-                  {copy(
-                    course.audience?.en ??
-                      "High school and university students, career switchers, and developers seeking hands-on mastery with personalized instructor mentoring rather than pre-recorded videos.",
-                    (course.program
-                      ? `السن المقترح: ${course.ageRecommendation}. السن استرشادي، وتحديد المستوى حسب استعداد الطالب وخبرته.`
-                      : course.audience?.ar) ??
-                      "للطلاب الجامعيين والراغبين في تغيير مسارهم المهني والمطورين الباحثين عن إرشاد مباشر وتطبيق عملي حقيقي بدلاً من الفيديوهات المسجلة الجافة.",
+                  {renderText(
+                    copy(
+                      course.audience?.en ??
+                        "High school and university students, career switchers, and developers seeking hands-on mastery with personalized instructor mentoring rather than pre-recorded videos.",
+                      course.audience?.ar ??
+                        (course.program
+                          ? `السن المقترح: ${ageRecommendation}. السن استرشادي، وتحديد المستوى حسب استعداد الطالب وخبرته.`
+                          : undefined) ??
+                        "للطلاب الجامعيين والراغبين في تغيير مسارهم المهني والمطورين الباحثين عن إرشاد مباشر وتطبيق عملي حقيقي بدلاً من الفيديوهات المسجلة الجافة.",
+                    ),
                   )}
                 </p>
                 <div className="fit-tags-list">
@@ -930,7 +1120,13 @@ function SharedCourseDetails() {
                 <h3>
                   {copy("Prerequisites & Preparation", "المتطلبات السابقة")}
                 </h3>
-                <p>{local(course.prerequisites)}</p>
+                <p>
+                  {content(
+                    selectedLevel.overview && !isBackendOverview
+                      ? (selectedLevel.prerequisites ?? course.prerequisites)
+                      : course.prerequisites,
+                  )}
+                </p>
                 <div className="fit-checklist">
                   <div className="checklist-item">
                     <Check size={14} />
@@ -972,16 +1168,14 @@ function SharedCourseDetails() {
                 </Link>
               </Reveal>
             </div>
-            {(course.program ? selectedLevel.outcomes : course.outcomes) && (
+            {outcomes && (
               <div className="course-path-card">
                 <h3>
                   {copy("What you will be able to build", "ما ستتمكن من بنائه")}
                 </h3>
                 <ul>
-                  {(course.program
-                    ? selectedLevel.outcomes
-                    : course.outcomes)!.map((outcome) => (
-                    <li key={outcome.en}>{local(outcome)}</li>
+                  {outcomes.map((outcome) => (
+                    <li key={outcome.en}>{content(outcome)}</li>
                   ))}
                 </ul>
               </div>
@@ -1023,7 +1217,9 @@ function SharedCourseDetails() {
                     "مراجعة كود سطر بسطر",
                   ),
                   desc: copy(
-                    "Receive constructive weekly feedback on your assignments to adopt professional coding standards and clean habits.",
+                    course.program
+                      ? "Try the project steps with the instructor, review errors and understand how to fix them."
+                      : "Receive constructive weekly feedback on your assignments to adopt professional coding standards and clean habits.",
                     course.program
                       ? "نجرب خطوات المشروع مع المدرب، ونراجع الأخطاء ونفهم إزاي نصلحها."
                       : "واجباتك ومشاريعك بتتراجع سطر بسطر مع ملاحظات لتكتب كود نظيف متوافق مع معايير الشركات.",
@@ -1036,7 +1232,9 @@ function SharedCourseDetails() {
                     "متابعة مستمرة بين المحاضرات",
                   ),
                   desc: copy(
-                    "Have a question between sessions? Reach out to the instructor directly without waiting for the next week.",
+                    course.program
+                      ? "Ask about anything that is unclear, available schedules and booking steps."
+                      : "Have a question between sessions? Reach out to the instructor directly without waiting for the next week.",
                     course.program
                       ? "اسألنا عن أي نقطة مش واضحة، وعن المواعيد المتاحة وطريقة الحجز."
                       : "واقف في مشكلة أثناء المذاكرة؟ تواصل مع المدرب مباشرة في أي وقت بدون ما تستنى المحاضرة اللي بعدها.",
@@ -1045,11 +1243,15 @@ function SharedCourseDetails() {
                 {
                   icon: Award,
                   title: copy(
-                    "Verified Certificate of Completion",
+                    course.program
+                      ? "Project and practical assessment"
+                      : "Verified Certificate of Completion",
                     course.program ? "مشروع وتقييم عملي" : "شهادة إتمام معتمدة",
                   ),
                   desc: copy(
-                    "Earn a verifiable MindCode Academy certificate upon completing your level and delivering your practical capstone.",
+                    course.program
+                      ? "Try the level project with the instructor and review the skills you have learned, step by step."
+                      : "Earn a verifiable MindCode Academy certificate upon completing your level and delivering your practical capstone.",
                     course.program
                       ? "نجرب مشروع المستوى مع المدرب ونراجع المهارات اللي اتعلمناها خطوة بخطوة."
                       : "احصل على شهادة موثقة من مايندكود تثبت إنجازك للمستوى وتسليمك للمشاريع العملية المطلوبة.",
@@ -1142,23 +1344,30 @@ function SharedCourseDetails() {
             </div>
 
             <div className="course-price-divider" />
-            {course.scheduleOnRequest && (
+            {(course.scheduleOnRequest || course.slug === "backend") && (
               <div className="course-total-note">
                 <p>
                   {copy("Selected level: ", "المستوى المختار: ")}
-                  {local(selectedLevel)}
+                  {content(selectedLevel)}
                 </p>
                 <p>
                   {copy("Complete course: ", "الكورس بالكامل: ")}
                   {totals.price.toLocaleString("en-US")} {copy("EGP", "ج.م")} ·{" "}
                   {totals.hours} {copy("hours", "ساعة")} · {totals.sessions}{" "}
-                  {copy("weekly sessions", "محاضرة أسبوعية")}
+                  {course.slug === "backend"
+                    ? copy("sessions", "محاضرة")
+                    : copy("weekly sessions", "محاضرة أسبوعية")}
                 </p>
                 <p>
-                  {copy(
-                    "One 2-hour session per week. Schedule on request.",
-                    "محاضرة أسبوعيًا مدتها ساعتان. المواعيد حسب الطلب.",
-                  )}
+                  {course.slug === "backend"
+                    ? copy(
+                        "Each session lasts two hours. Ask about available schedules and booking steps; an inquiry does not confirm a booking.",
+                        "كل محاضرة ساعتين. اسألنا عن المواعيد المتاحة وخطوات الحجز؛ الاستفسار مش تأكيد للحجز.",
+                      )
+                    : copy(
+                        "One 2-hour session per week. Schedule on request.",
+                        "محاضرة أسبوعيًا مدتها ساعتان. المواعيد حسب الطلب.",
+                      )}
                 </p>
               </div>
             )}
@@ -1188,7 +1397,9 @@ function SharedCourseDetails() {
                 {
                   Icon: Code2,
                   text: copy(
-                    "Weekly practical assignments & reviews",
+                    course.program
+                      ? "Practical exercises and instructor review"
+                      : "Weekly practical assignments & reviews",
                     course.program
                       ? "تمارين عملية ومراجعة مع المدرب"
                       : "مشاريع وواجبات تطبيقية أسبوعية",
@@ -1197,7 +1408,9 @@ function SharedCourseDetails() {
                 {
                   Icon: Award,
                   text: copy(
-                    "Certificate upon project completion",
+                    course.program
+                      ? "Project and instructor-guided assessment"
+                      : "Certificate upon project completion",
                     course.program
                       ? "مشروع وتقييم عملي مع المدرب"
                       : "شهادة إتمام بعد تسليم المشروع",
@@ -1231,7 +1444,9 @@ function SharedCourseDetails() {
 
             <p className="course-enrollment-disclosure">
               {copy(
-                "Each level is paid separately with full flexibility. No upfront commitment for the whole track.",
+                course.program
+                  ? "Prices are per learner and level in a small online group. An inquiry does not confirm a booking; the academy team will explain available schedules and next steps."
+                  : "Each level is paid separately with full flexibility. No upfront commitment for the whole track.",
                 course.program
                   ? "السعر لكل طالب للمستوى في مجموعة صغيرة أونلاين. إرسال الاستفسار مش تأكيد للحجز؛ فريق الأكاديمية هيوضحلك المواعيد والخطوات."
                   : "يتم سداد كل مستوى بشكل منفصل بمرونة تامة. لا يوجد أي إلزام بدفع المسار كاملاً مسبقاً.",
@@ -1261,7 +1476,7 @@ function SharedCourseDetails() {
         aria-label={copy("Quick Enrollment", "التسجيل السريع")}
       >
         <div className="mobile-bar-info">
-          <strong>{course.name}</strong>
+          <strong>{name}</strong>
           <span>
             {course.program && selectedOldPrice && (
               <>

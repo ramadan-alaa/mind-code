@@ -1,0 +1,41 @@
+{
+  "passed": true,
+  "cases": 200,
+  "routes": [
+    "/courses/scratchjr/level-1",
+    "/courses/scratchjr/level-2",
+    "/courses/scratch/level-1",
+    "/courses/scratch/level-2",
+    "/courses/python/level-1",
+    "/courses/python/level-2",
+    "/courses/backend/level-1",
+    "/courses/backend/level-2",
+    "/courses/backend/level-3",
+    "/courses/backend/level-4"
+  ],
+  "errors": [],
+  "overflow": [],
+  "accessibility": [],
+  "screenshots": [
+    "artifacts/bilingual-scratchjr-en-390.png",
+    "artifacts/bilingual-scratchjr-en-1440.png",
+    "artifacts/bilingual-scratchjr-ar-390.png",
+    "artifacts/bilingual-scratchjr-ar-1440.png",
+    "artifacts/bilingual-scratch-en-390.png",
+    "artifacts/bilingual-scratch-en-1440.png",
+    "artifacts/bilingual-scratch-ar-390.png",
+    "artifacts/bilingual-scratch-ar-1440.png",
+    "artifacts/bilingual-python-en-390.png",
+    "artifacts/bilingual-python-en-1440.png",
+    "artifacts/bilingual-python-ar-390.png",
+    "artifacts/bilingual-python-ar-1440.png",
+    "artifacts/bilingual-backend-en-390.png",
+    "artifacts/bilingual-backend-en-1440.png",
+    "artifacts/bilingual-backend-ar-390.png",
+    "artifacts/bilingual-backend-ar-1440.png",
+    "artifacts/bilingual-editor-comparison.png"
+  ],
+  "handoffs": 20,
+  "pythonExamplesExecuted": 2,
+  "csharpValidation": "Reviewed valid top-level C# and ASP.NET Core Web-template examples; .NET SDK is not installed for compilation."
+}

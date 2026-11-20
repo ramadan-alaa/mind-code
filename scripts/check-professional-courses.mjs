@@ -29,7 +29,7 @@ const data = await page.evaluate(async () => {
   const { courses, courseTotals } = await import("/src/data/courses.ts");
   return courses.map((course) => ({ ...course, totals: courseTotals(course) }));
 });
-assert.equal(data.length, 11);
+assert.equal(data.length, 12);
 assert.deepEqual(
   data
     .slice(0, 4)
@@ -83,7 +83,7 @@ await page.getByRole("textbox", { name: "Search courses" }).fill("");
 for (const [category, count] of [
   ["fundamentals", 2],
   ["frameworks", 2],
-  ["languages", 5],
+  ["languages", 6],
   ["styling", 1],
   ["tools", 1],
 ]) {

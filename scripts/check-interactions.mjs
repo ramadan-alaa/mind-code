@@ -25,14 +25,14 @@ await page.route("**/src/config/academy.ts", async (route) => {
 const results = [];
 await page.goto(origin + "/courses");
 await page.locator("h1").waitFor();
-assert.equal(await page.locator(".course-card").count(), 11);
+assert.equal(await page.locator(".course-card").count(), 12);
 assert.equal(await page.locator(".upcoming-card").count(), 2);
 await page.getByRole("textbox", { name: "Search courses" }).fill("React");
 assert.equal(await page.locator(".course-card").count(), 2);
 await page.getByRole("textbox", { name: "Search courses" }).fill("no-match");
 assert.equal(await page.locator(".course-card").count(), 0);
 await page.getByRole("button", { name: "Reset filters" }).click();
-assert.equal(await page.locator(".course-card").count(), 11);
+assert.equal(await page.locator(".course-card").count(), 12);
 await page
   .getByLabel("Difficulty", { exact: true })
   .selectOption("intermediate");

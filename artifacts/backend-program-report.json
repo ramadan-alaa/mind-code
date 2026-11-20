@@ -1,0 +1,34 @@
+{
+  "passed": true,
+  "cases": 100,
+  "errors": [],
+  "overflow": [],
+  "accessibility": [],
+  "screenshots": [
+    "artifacts/backend-cards-python-comparison.png",
+    "artifacts/backend-details-python-comparison-390.png",
+    "artifacts/backend-details-python-comparison-1440.png"
+  ],
+  "handoffs": [
+    {
+      "level": 1,
+      "numberMatchesConfig": true,
+      "includesCourseAndLevel": true
+    },
+    {
+      "level": 2,
+      "numberMatchesConfig": true,
+      "includesCourseAndLevel": true
+    },
+    {
+      "level": 3,
+      "numberMatchesConfig": true,
+      "includesCourseAndLevel": true
+    },
+    {
+      "level": 4,
+      "numberMatchesConfig": true,
+      "includesCourseAndLevel": true
+    }
+  ]
+}

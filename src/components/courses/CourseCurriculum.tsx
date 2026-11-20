@@ -10,8 +10,8 @@ import {
   Layers,
   Code2,
 } from "lucide-react";
-import type { Course } from "../../data/courses";
-import { useCopy } from "../ui";
+import type { Course, Localized } from "../../data/courses";
+import { TechnicalText, useCopy } from "../ui";
 import { levelProjectsMap } from "../../data/courseProjects";
 
 export default function CourseCurriculum({
@@ -25,13 +25,13 @@ export default function CourseCurriculum({
     initialLevelIndex,
   ]);
   const reduce = useReducedMotion();
-  const { copy: siteCopy, t: siteT, local: siteLocal } = useCopy();
-  const copy = course.program ? (_en: string, ar: string) => ar : siteCopy;
-  const local = course.program
-    ? (value: import("../../data/courses").Localized) => value.ar
-    : siteLocal;
-  const t = (key: string) =>
-    siteT(key, { lng: course.program ? "ar" : undefined });
+  const { copy, t, local } = useCopy();
+  const content = (value: Localized) =>
+    course.program ? (
+      <TechnicalText>{local(value)}</TechnicalText>
+    ) : (
+      local(value)
+    );
 
   const toggleLevel = (index: number) => {
     setExpandedLevels((prev) =>
@@ -110,7 +110,7 @@ export default function CourseCurriculum({
                       {t("level")} {index + 1}
                       <span className="curriculum-level-badge">
                         {course.program
-                          ? local(level)
+                          ? content(level)
                           : index === 0
                             ? copy("Foundation", "التأسيس")
                             : index === course.levels.length - 1
@@ -120,7 +120,7 @@ export default function CourseCurriculum({
                     </span>
                     <small>
                       {level.sessions
-                        ? local(level)
+                        ? content(level)
                         : index === 0
                           ? copy(
                               "Start from fundamentals with clarity",
@@ -173,7 +173,7 @@ export default function CourseCurriculum({
                       {level.prerequisites && (
                         <p className="session-prerequisites">
                           {copy("Prerequisites: ", "المتطلبات السابقة: ")}
-                          {local(level.prerequisites)}
+                          {content(level.prerequisites)}
                         </p>
                       )}
                       {level.sessions ? (
@@ -185,12 +185,12 @@ export default function CourseCurriculum({
                             >
                               <summary>
                                 {copy("Session", "المحاضرة")} {session.number} —{" "}
-                                {local(session.title)}
+                                {content(session.title)}
                               </summary>
                               <div className="session-content">
                                 <ul>
                                   {session.topics.map((topic) => (
-                                    <li key={topic.en}>{local(topic)}</li>
+                                    <li key={topic.en}>{content(topic)}</li>
                                   ))}
                                 </ul>
                                 <strong>
@@ -200,16 +200,19 @@ export default function CourseCurriculum({
                                   )}
                                 </strong>
                                 {course.program && (
-                                  <p>{local(session.practiceTask)}</p>
+                                  <p>{content(session.practiceTask)}</p>
                                 )}
                                 {session.learningObjectives
                                   .filter(
                                     (objective) =>
                                       !course.program ||
-                                      objective.ar !== session.practiceTask.ar,
+                                      local(objective) !==
+                                        local(session.practiceTask),
                                   )
                                   .map((objective) => (
-                                    <p key={objective.en}>{local(objective)}</p>
+                                    <p key={objective.en}>
+                                      {content(objective)}
+                                    </p>
                                   ))}
                               </div>
                             </details>
@@ -241,7 +244,13 @@ export default function CourseCurriculum({
 
                       {project && (
                         <div className="curriculum-project-card">
-                          <div className="project-badge">
+                          <div
+                            className={
+                              course.slug === "scratchjr"
+                                ? "project-badge scratchjr-project-badge"
+                                : "project-badge"
+                            }
+                          >
                             <Sparkles size={13} />
                             <span>
                               {index === course.levels.length - 1
@@ -249,7 +258,7 @@ export default function CourseCurriculum({
                                 : copy("Level Project", "مشروع هذا المستوى")}
                             </span>
                           </div>
-                          <p>{local(project)}</p>
+                          <p>{content(project)}</p>
                         </div>
                       )}
 

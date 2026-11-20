@@ -15,18 +15,44 @@ import {
   Blocks,
   Gamepad2,
   Terminal,
+  Server,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
-import type { Course, Localized } from "../data/courses";
+import { courseTotals, type Course, type Localized } from "../data/courses";
+const technicalTerms =
+  /((?:\.[A-Za-z]|[A-Za-z])[A-Za-z0-9_+#./-]*(?:[ \t\u00a0]+[A-Za-z][A-Za-z0-9_+#./-]*)*)/g;
+// Native options, metadata and messaging need the Unicode equivalent of <bdi>.
+export const isolateTechnicalText = (value: string) =>
+  value.replace(technicalTerms, "\u2066$1\u2069");
 export function useCopy() {
   const { i18n, t } = useTranslation();
   const ar = i18n.language === "ar";
+  const local = (value: Localized) => value[ar ? "ar" : "en"];
   return {
     ar,
     t,
     copy: (en: string, arabic: string) => (ar ? arabic : en),
-    local: (value: Localized) => value[ar ? "ar" : "en"],
+    local,
+    courseName: (course: Course) =>
+      course.localizedName
+        ? ar
+          ? isolateTechnicalText(course.localizedName.ar)
+          : course.localizedName.en
+        : course.name,
   };
+}
+export function TechnicalText({ children }: { children: string }) {
+  const { ar } = useCopy();
+  if (!ar) return children;
+  return children.split(technicalTerms).map((part, index) =>
+    index % 2 ? (
+      <bdi key={index} dir="ltr">
+        {part}
+      </bdi>
+    ) : (
+      part
+    ),
+  );
 }
 export function Reveal({
   children,
@@ -139,6 +165,8 @@ export function TechIcon({ course }: { course: Course }) {
         <Gamepad2 aria-label="Scratch" size={28} />
       ) : course.slug === "python" ? (
         <Terminal aria-label="Python" size={28} />
+      ) : course.slug === "backend" ? (
+        <Server aria-label="Back-End" size={28} />
       ) : course.slug === "git-github" ? (
         <GitBranch aria-label="Git" size={28} />
       ) : course.slug === "tailwind-css" ? (
@@ -150,15 +178,24 @@ export function TechIcon({ course }: { course: Course }) {
   );
 }
 export function CourseCard({ course }: { course: Course }) {
-  const { copy, t, local } = useCopy();
+  const { copy, t, local, courseName } = useCopy();
+  const totals = course.slug === "backend" ? courseTotals(course) : undefined;
   return (
     <Reveal className="course-card">
       <div className="course-top">
         <TechIcon course={course} />
         <span className="small-label">{t(course.difficulty)}</span>
       </div>
-      <h3>{course.name}</h3>
-      <p>{local(course.cardDescription ?? course.description)}</p>
+      <h3>{courseName(course)}</h3>
+      <p>
+        {course.program ? (
+          <TechnicalText>
+            {local(course.cardDescription ?? course.description)}
+          </TechnicalText>
+        ) : (
+          local(course.cardDescription ?? course.description)
+        )}
+      </p>
       <div className="course-facts">
         <span>
           <Layers3 size={14} />
@@ -175,15 +212,24 @@ export function CourseCard({ course }: { course: Course }) {
         <span>
           <CalendarDays size={14} />
           <span>
-            <bdi>{course.sessions}</bdi> {copy("sessions", "محاضرات")}
-            <small>{copy("per level", "لكل مستوى")}</small>
+            <bdi>{totals?.sessions ?? course.sessions}</bdi>{" "}
+            {copy("sessions", "محاضرات")}
+            <small>
+              {totals
+                ? copy("total", "إجمالي")
+                : copy("per level", "لكل مستوى")}
+            </small>
           </span>
         </span>
         <span>
           <Clock3 size={14} />
           <span>
-            <bdi>{course.hours}</bdi> {copy("hours", "ساعات")}
-            <small>{copy("per level", "لكل مستوى")}</small>
+            <bdi>{totals?.hours ?? course.hours}</bdi> {copy("hours", "ساعات")}
+            <small>
+              {totals
+                ? copy("total", "إجمالي")
+                : copy("per level", "لكل مستوى")}
+            </small>
           </span>
         </span>
       </div>

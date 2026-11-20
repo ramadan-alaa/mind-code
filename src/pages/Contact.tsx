@@ -17,12 +17,12 @@ import {
   Phone,
 } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
-import { useCopy } from "../components/ui";
+import { isolateTechnicalText, useCopy } from "../components/ui";
 import { academy } from "../config/academy";
 import { courses } from "../data/courses";
 import SEO from "../components/SEO";
 export default function Contact() {
-  const { copy, ar, local } = useCopy();
+  const { copy, ar, local, courseName } = useCopy();
   const [params] = useSearchParams();
   const [ready, setReady] = useState(false);
   const [handoff, setHandoff] = useState("");
@@ -96,7 +96,10 @@ export default function Contact() {
   const onSubmit = (data: Values) => {
     const values = {
       ...data,
-      course: courses.find((c) => c.slug === data.course)?.name || data.course,
+      course: (() => {
+        const course = courses.find((c) => c.slug === data.course);
+        return course ? courseName(course) : data.course;
+      })(),
       level: `${copy("Level", "المستوى")} ${data.level}`,
       age:
         data.age === "under12"
@@ -366,12 +369,12 @@ export default function Contact() {
                               ["25+", copy("25+ years", "٢٥ سنة أو أكثر")],
                             ]
                           : key === "course"
-                            ? courses.map((c) => [c.slug, c.name])
+                            ? courses.map((c) => [c.slug, courseName(c)])
                             : key === "level"
                               ? (selectedCourse?.levels ?? []).map(
                                   (level, index) => [
                                     String(index + 1),
-                                    `${copy("Level", "المستوى")} ${index + 1}${level.sessions ? ` — ${local(level)}` : ""}`,
+                                    `${copy("Level", "المستوى")} ${index + 1}${level.sessions ? ` — ${ar && selectedCourse?.program ? isolateTechnicalText(local(level)) : local(level)}` : ""}`,
                                   ],
                                 )
                               : key === "experience"
