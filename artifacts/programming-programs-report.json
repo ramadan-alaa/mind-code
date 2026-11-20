@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "cases": 60,
+  "errors": [],
+  "overflow": [],
+  "accessibility": [],
+  "comparisons": [
+    "artifacts/ui-consistency-cards-git-github-scratchjr.png",
+    "artifacts/ui-consistency-cards-git-github-scratch.png",
+    "artifacts/ui-consistency-cards-git-github-python.png",
+    "artifacts/ui-consistency-details-html-python-390.png",
+    "artifacts/ui-consistency-details-html-python-1440.png"
+  ]
+}

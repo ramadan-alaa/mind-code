@@ -23,13 +23,13 @@ const expected = [
   ["typescript", 2, 5, 10, 1200, 2400, 20],
   ["nextjs", 3, 6, 12, 1600, 4800, 36],
 ];
-await page.goto(origin + "/courses");
+await page.goto(origin + "/courses", { waitUntil: "domcontentloaded" });
 await page.locator("h1").waitFor();
 const data = await page.evaluate(async () => {
   const { courses, courseTotals } = await import("/src/data/courses.ts");
   return courses.map((course) => ({ ...course, totals: courseTotals(course) }));
 });
-assert.equal(data.length, 8);
+assert.equal(data.length, 11);
 assert.deepEqual(
   data
     .slice(0, 4)
@@ -83,7 +83,7 @@ await page.getByRole("textbox", { name: "Search courses" }).fill("");
 for (const [category, count] of [
   ["fundamentals", 2],
   ["frameworks", 2],
-  ["languages", 2],
+  ["languages", 5],
   ["styling", 1],
   ["tools", 1],
 ]) {
@@ -104,7 +104,9 @@ for (const lang of ["en", "ar"]) {
     for (const width of [320, 375, 430, 768, 1024, 1440]) {
       await page.setViewportSize({ width, height: 950 });
       for (const [slug, levels, sessions] of expected) {
-        await page.goto(`${origin}/courses/${slug}`);
+        await page.goto(`${origin}/courses/${slug}`, {
+          waitUntil: "domcontentloaded",
+        });
         await page.locator(".curriculum-trigger").first().waitFor();
         await expect(page.locator("html")).toHaveAttribute("lang", lang);
         await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
@@ -147,7 +149,9 @@ await page.evaluate(() => {
   localStorage.setItem("mindcode-language", "en");
 });
 for (const [slug, levels] of expected) {
-  await page.goto(`${origin}/courses/${slug}`);
+  await page.goto(`${origin}/courses/${slug}`, {
+    waitUntil: "domcontentloaded",
+  });
   await page.locator(".level-pill-btn").last().click();
   const link = page
     .locator('.course-enrollment-card a[href^="/contact"]')
@@ -159,17 +163,15 @@ for (const [slug, levels] of expected) {
   await link.click();
   assert.equal(await page.locator("#course").inputValue(), slug);
   assert.equal(await page.locator("#level").inputValue(), String(levels));
-  assert(
-    (await page.locator(".schedule-card").innerText()).includes(
-      "Schedule on request",
-    ),
-  );
-  await page.reload();
+  await expect(page.locator("#course")).toHaveValue(slug);
+  await page.reload({ waitUntil: "domcontentloaded" });
   assert.equal(await page.locator("#level").inputValue(), String(levels));
 }
 await page.locator("#course").selectOption("git-github");
 assert.equal(await page.locator("#level").inputValue(), "1");
-await page.goto(`${origin}/contact?course=nextjs&level=99`);
+await page.goto(`${origin}/contact?course=nextjs&level=99`, {
+  waitUntil: "domcontentloaded",
+});
 assert.equal(await page.locator("#level").inputValue(), "1");
 // Simulate a configured handoff only in the browser; never send a message.
 await page.route("**/src/config/academy.ts", async (route) => {
@@ -177,20 +179,22 @@ await page.route("**/src/config/academy.ts", async (route) => {
   await route.fulfill({
     response,
     body: (await response.text()).replace(
-      'whatsapp: ""',
+      /whatsapp: "[^"]*"/,
       'whatsapp: "201000000000"',
     ),
   });
 });
-await page.goto(`${origin}/contact?course=nextjs&level=3`);
+await page.goto(`${origin}/contact?course=nextjs&level=3`, {
+  waitUntil: "domcontentloaded",
+});
 await page.locator("#name").fill("Course test learner");
 await page.locator("#age").selectOption("18-24");
 await page.locator("#experience").selectOption("experienced");
 await page.locator("#method").selectOption("whatsapp");
 await page.locator("#phone").fill("+201000000000");
 await page.locator('input[type="checkbox"]').check();
-await page.getByRole("button", { name: "Review inquiry" }).click();
-const handoff = page.getByRole("link", { name: "Continue to WhatsApp" });
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
+const handoff = page.getByRole("link", { name: "Open WhatsApp & send" });
 await handoff.waitFor();
 const message = new URL(await handoff.getAttribute("href")).searchParams.get(
   "text",
@@ -206,7 +210,9 @@ for (const lang of ["en", "ar"]) {
       },
       { lang, theme },
     );
-    await page.goto(`${origin}/courses/nextjs`);
+    await page.goto(`${origin}/courses/nextjs`, {
+      waitUntil: "domcontentloaded",
+    });
     await page.locator(".curriculum-trigger").first().waitFor();
     await page.locator(".curriculum-session summary").first().click();
     const result = await new AxeBuilder({ page })

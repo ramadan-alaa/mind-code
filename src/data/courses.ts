@@ -1,4 +1,5 @@
 import { professionalCourses } from "./professionalCourses";
+import { programmingPrograms } from "./programmingPrograms";
 export type Localized = { en: string; ar: string };
 export interface CourseSession {
   number: number;
@@ -12,8 +13,12 @@ export interface CourseLevel extends Localized {
   sessions?: CourseSession[];
   hoursPerSession?: number;
   price?: number;
+  oldPrice?: number;
+  proposedOriginalPrice?: number;
   project?: Localized;
   prerequisites?: Localized;
+  slug?: string;
+  outcomes?: Localized[];
 }
 export const courseCategories = {
   fundamentals: { en: "Frontend Fundamentals", ar: "أساسيات الواجهات" },
@@ -24,12 +29,15 @@ export const courseCategories = {
 } satisfies Record<string, Localized>;
 export type CourseCategory = keyof typeof courseCategories;
 export interface Course {
+  program?: boolean;
+  ageRecommendation?: string;
   slug: string;
   name: string;
   color: string;
   symbol: string;
   price: number;
   oldPrice?: number;
+  proposedOriginalPrice?: number;
   sessions: number;
   hours: number;
   difficulty: "beginner" | "intermediateBeginner" | "intermediate" | "advanced";
@@ -41,6 +49,7 @@ export interface Course {
   collection?: "foundation" | "professional";
   faq?: { q: Localized; a: Localized }[];
   description: Localized;
+  cardDescription?: Localized;
   prerequisites: Localized;
   levels: CourseLevel[];
 }
@@ -182,6 +191,7 @@ export const courses: Course[] = [
     ],
   },
   ...professionalCourses,
+  ...programmingPrograms,
 ];
 export const courseCategory = (course: Course): CourseCategory =>
   course.category ??
@@ -225,7 +235,7 @@ export const tracks = [
     en: "Python Programming",
     ar: "برمجة بايثون",
     icon: "Py",
-    available: false,
+    available: true,
   },
   {
     en: "AI & Machine Learning",

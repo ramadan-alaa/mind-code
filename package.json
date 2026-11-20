@@ -12,6 +12,7 @@
     "check:browser": "node scripts/check-browser.mjs",
     "check:interactions": "node scripts/check-interactions.mjs",
     "check:courses": "node scripts/check-professional-courses.mjs",
+    "check:programs": "node scripts/check-programming-programs.mjs",
     "format": "prettier --write src scripts *.json *.ts *.js index.html README.md"
   },
   "dependencies": {

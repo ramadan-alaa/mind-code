@@ -14,10 +14,24 @@ import type { Course } from "../../data/courses";
 import { useCopy } from "../ui";
 import { levelProjectsMap } from "../../data/courseProjects";
 
-export default function CourseCurriculum({ course }: { course: Course }) {
-  const [expandedLevels, setExpandedLevels] = useState<number[]>([0]);
+export default function CourseCurriculum({
+  course,
+  initialLevelIndex = 0,
+}: {
+  course: Course;
+  initialLevelIndex?: number;
+}) {
+  const [expandedLevels, setExpandedLevels] = useState<number[]>([
+    initialLevelIndex,
+  ]);
   const reduce = useReducedMotion();
-  const { copy, t, local } = useCopy();
+  const { copy: siteCopy, t: siteT, local: siteLocal } = useCopy();
+  const copy = course.program ? (_en: string, ar: string) => ar : siteCopy;
+  const local = course.program
+    ? (value: import("../../data/courses").Localized) => value.ar
+    : siteLocal;
+  const t = (key: string) =>
+    siteT(key, { lng: course.program ? "ar" : undefined });
 
   const toggleLevel = (index: number) => {
     setExpandedLevels((prev) =>
@@ -95,11 +109,13 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                     <span className="curriculum-title">
                       {t("level")} {index + 1}
                       <span className="curriculum-level-badge">
-                        {index === 0
-                          ? copy("Foundation", "التأسيس")
-                          : index === course.levels.length - 1
-                            ? copy("Mastery & Capstone", "الإتقان والتخرج")
-                            : copy("Core Skills", "تطوير المهارات")}
+                        {course.program
+                          ? local(level)
+                          : index === 0
+                            ? copy("Foundation", "التأسيس")
+                            : index === course.levels.length - 1
+                              ? copy("Mastery & Capstone", "الإتقان والتخرج")
+                              : copy("Core Skills", "تطوير المهارات")}
                       </span>
                     </span>
                     <small>
@@ -183,9 +199,18 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                                     "التطبيق والهدف التعليمي",
                                   )}
                                 </strong>
-                                {session.learningObjectives.map((objective) => (
-                                  <p key={objective.en}>{local(objective)}</p>
-                                ))}
+                                {course.program && (
+                                  <p>{local(session.practiceTask)}</p>
+                                )}
+                                {session.learningObjectives
+                                  .filter(
+                                    (objective) =>
+                                      !course.program ||
+                                      objective.ar !== session.practiceTask.ar,
+                                  )
+                                  .map((objective) => (
+                                    <p key={objective.en}>{local(objective)}</p>
+                                  ))}
                               </div>
                             </details>
                           ))}
@@ -238,6 +263,15 @@ export default function CourseCurriculum({ course }: { course: Course }) {
                           {hours} {copy("hours total", "إجمالي الساعات")}
                         </span>
                         <span className="curriculum-price-tag">
+                          {course.program &&
+                            (level.oldPrice ?? course.oldPrice) && (
+                              <>
+                                <del>
+                                  {(level.oldPrice ??
+                                    course.oldPrice)!.toLocaleString("en-US")}
+                                </del>{" "}
+                              </>
+                            )}
                           {(level.price ?? course.price).toLocaleString(
                             "en-US",
                           )}{" "}

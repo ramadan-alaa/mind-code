@@ -1,4 +1,5 @@
 export const academy = {
+  siteUrl: "https://mind-code-sage.vercel.app",
   name: "MindCode Academy",
   tagline: "Programming Minds. Brighter Futures.",
   whatsapp: "201555401852",
@@ -10,6 +11,9 @@ export const academy = {
   teachingFormat: "Live online",
   timezone: "Africa/Cairo",
   slots: [
-    { en: "Available anytime · Flexible scheduling", ar: "متاح طوال الوقت · مواعيد مرنة" },
+    {
+      en: "Available anytime · Flexible scheduling",
+      ar: "متاح طوال الوقت · مواعيد مرنة",
+    },
   ],
 };

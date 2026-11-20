@@ -23,7 +23,7 @@ export default function Courses() {
         .includes(search.toLowerCase()) &&
       (difficulty === "all" || c.difficulty === difficulty) &&
       (category === "all" ||
-        category === "frontend" ||
+        (category === "frontend" && !c.program) ||
         category === courseCategory(c)) &&
       status !== "soon",
   );
@@ -84,11 +84,14 @@ export default function Courses() {
                   {local(label)}
                 </option>
               ))}
-              {tracks.slice(1).map((c) => (
-                <option key={c.en} value={c.en}>
-                  {local(c)}
-                </option>
-              ))}
+              {tracks
+                .slice(1)
+                .filter((c) => !c.available)
+                .map((c) => (
+                  <option key={c.en} value={c.en}>
+                    {local(c)}
+                  </option>
+                ))}
             </select>
           </label>
           <label>

@@ -1,6 +1,6 @@
 import { MobileSlider } from "../components/MobileSlider";
 import { useState, useEffect, useId } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
@@ -136,18 +136,45 @@ const snippets: Record<
 };
 
 export default function CourseDetails() {
-  const { slug } = useParams();
+  const { slug, levelSlug } = useParams();
+  const course = courses.find((item) => item.slug === slug);
+  if (
+    levelSlug &&
+    (!course?.program ||
+      !course.levels.some((level) => level.slug === levelSlug))
+  )
+    return <NotFound />;
+  return <SharedCourseDetails />;
+}
+
+function SharedCourseDetails() {
+  const { slug, levelSlug } = useParams();
+  const navigate = useNavigate();
   const course = courses.find((c) => c.slug === slug);
-  const { copy, t, local } = useCopy();
+  const { copy: siteCopy, t: siteT, local: siteLocal } = useCopy();
+  const copy = course?.program ? (_en: string, ar: string) => ar : siteCopy;
+  const local = course?.program
+    ? (value: import("../data/courses").Localized) => value.ar
+    : siteLocal;
+  const t = (key: string) =>
+    siteT(key, { lng: course?.program ? "ar" : undefined });
   const reduce = useReducedMotion();
 
   // State
-  const [activeTab, setActiveTab] = useState<"code" | "preview">("code");
+  const [activeTab, setActiveTab] = useState<"code" | "preview">(
+    course?.program ? "preview" : "code",
+  );
   const [copied, setCopied] = useState(false);
   const [activeNav, setActiveNav] = useState("curriculum");
   const [levelSelection, setLevelSelection] = useState({ slug, index: 0 });
-  const selectedLevelIndex =
-    levelSelection.slug === slug ? levelSelection.index : 0;
+  const selectedLevelIndex = course?.program
+    ? Math.max(
+        0,
+        course.levels.findIndex((level) => level.slug === levelSlug),
+      )
+    : levelSelection.slug === slug
+      ? levelSelection.index
+      : 0;
 
   // Generate unique IDs for tab accessibility
   const codeTabId = useId();
@@ -182,7 +209,25 @@ export default function CourseDetails() {
 
   if (!course) return <NotFound />;
 
-  const snippetInfo = snippets[course.slug] || {
+  const snippetInfo = (course.program
+    ? {
+        fileName: course.slug === "python" ? "practice.py" : "blocks",
+        code:
+          course.slug === "python"
+            ? [
+                'name = input("Name: ")',
+                "for i in range(3):",
+                '    print("Hello", name)',
+              ]
+            : [
+                "عند بداية المشهد",
+                "  حرّك الشخصية",
+                "  كرر الحركة",
+                "  جرّب النتيجة وعدّل الخطوات",
+              ],
+        previewHtml: course.description.ar,
+      }
+    : snippets[course.slug]) || {
     fileName:
       course.slug === "git-github"
         ? "workflow.sh"
@@ -235,6 +280,9 @@ export default function CourseDetails() {
   const levelIndex = Math.min(selectedLevelIndex, course.levels.length - 1);
   const selectedLevel = course.levels[levelIndex];
   const selectedPrice = selectedLevel.price ?? course.price;
+  const selectedOldPrice = selectedLevel.oldPrice ?? course.oldPrice;
+  const pageTitle = `${course.name} — المستوى ${levelIndex + 1}: ${selectedLevel.ar}`;
+  const pageDescription = `${course.description.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${course.sessions} محاضرات، ${course.hours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`;
   const totals = courseTotals(course);
   const enrollmentUrl = `/contact?course=${course.slug}&level=${levelIndex + 1}`;
 
@@ -258,6 +306,8 @@ export default function CourseDetails() {
   return (
     <div
       className="course-detail"
+      lang={course.program ? "ar" : undefined}
+      dir={course.program ? "rtl" : undefined}
       style={
         {
           "--course-color": course.color,
@@ -267,10 +317,10 @@ export default function CourseDetails() {
       }
     >
       <SEO
-        en={`${course.name} Course`}
-        ar={`كورس ${course.name} التفاعلي`}
-        descriptionEn={course.description.en}
-        descriptionAr={course.description.ar}
+        en={course.program ? pageTitle : `${course.name} Course`}
+        ar={course.program ? pageTitle : `كورس ${course.name} التفاعلي`}
+        descriptionEn={course.program ? pageDescription : course.description.en}
+        descriptionAr={course.program ? pageDescription : course.description.ar}
       />
 
       {/* Hero Ambient Glow Layer */}
@@ -316,7 +366,9 @@ export default function CourseDetails() {
 
             <h1 className="course-main-heading">
               <span className="heading-sub">
-                {copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
+                {course.program
+                  ? `المستوى ${levelIndex + 1}`
+                  : copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
               </span>
               <br />
               {copy("Build with", "ابنِ مشروعاتك بـ")}{" "}
@@ -325,7 +377,10 @@ export default function CourseDetails() {
               </span>
             </h1>
 
-            <p className="course-main-desc">{local(course.description)}</p>
+            <p className="course-main-desc">
+              {course.program && <>{selectedLevel.ar} — </>}
+              {local(course.description)}
+            </p>
 
             {/* Quick value proposition tags */}
             <div className="hero-feature-tags">
@@ -339,7 +394,9 @@ export default function CourseDetails() {
               </span>
               <span>
                 <Check size={14} />
-                {copy("Accredited Certificate", "شهادة إتمام معتمدة")}
+                {course.program
+                  ? "مجموعات صغيرة أونلاين"
+                  : copy("Accredited Certificate", "شهادة إتمام معتمدة")}
               </span>
             </div>
 
@@ -369,7 +426,9 @@ export default function CourseDetails() {
               <Sparkles size={14} />
               {copy(
                 "Small interactive cohorts. Clear roadmap. Step-by-step guidance.",
-                "مجموعات صغيرة تفاعلية. مسار واضح. خطوة بخطوة حتى الاحتراف.",
+                course.program
+                  ? "مجموعات صغيرة تفاعلية. مسار واضح. نتعلم ونطبق خطوة بخطوة."
+                  : "مجموعات صغيرة تفاعلية. مسار واضح. خطوة بخطوة حتى الاحتراف.",
               )}
             </div>
           </motion.div>
@@ -402,7 +461,11 @@ export default function CourseDetails() {
               }}
             >
               <Award size={13} />
-              <span>{copy("Code Review Included", "مراجعة كود أسبوعية")}</span>
+              <span>
+                {course.program
+                  ? "مراجعة وتطبيق مع المدرب"
+                  : copy("Code Review Included", "مراجعة كود أسبوعية")}
+              </span>
             </motion.div>
 
             <div className="course-code-editor-card">
@@ -506,7 +569,9 @@ export default function CourseDetails() {
                           </span>
                           <span className="badge-tag">
                             <Check size={12} />{" "}
-                            {copy("Production Ready", "جاهز للإنتاج")}
+                            {course.program
+                              ? "تطبيق بإرشاد المدرب"
+                              : copy("Production Ready", "جاهز للإنتاج")}
                           </span>
                         </div>
                       </div>
@@ -561,7 +626,9 @@ export default function CourseDetails() {
               Icon: CalendarDays,
               value: `${course.sessions}`,
               label: t("sessions"),
-              sub: copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
+              sub: course.program
+                ? "ساعتين لكل محاضرة"
+                : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
             },
             {
               Icon: Clock3,
@@ -573,7 +640,9 @@ export default function CourseDetails() {
               Icon: Users,
               value: copy("Live Cohort", "مجموعات تفاعلية"),
               label: copy("Direct Instructor Access", "تفاعل مباشر مع المدرب"),
-              sub: copy("Max 6-8 students", "عدد محدود لكل دفعة"),
+              sub: course.program
+                ? "مجموعات صغيرة"
+                : copy("Max 6-8 students", "عدد محدود لكل دفعة"),
             },
           ].map(({ Icon, value, label, sub }, idx) => (
             <div key={idx} className="quick-fact-card">
@@ -661,18 +730,82 @@ export default function CourseDetails() {
               <h2>
                 {copy(
                   "One level. One step closer to mastery.",
-                  "كل مستوى يقرّبك لهدفك الاحترافي.",
+                  course.program
+                    ? "كل مستوى خطوة جديدة في تعلم البرمجة."
+                    : "كل مستوى يقرّبك لهدفك الاحترافي.",
                 )}
               </h2>
               <p className="course-section-description">
                 {copy(
                   "Structured into manageable levels. You can enroll level by level with complete flexibility, accompanied by weekly assignments and direct mentor code reviews.",
-                  "المنهج مقسم إلى مستويات واضحة. يمكنك دراسة كل مستوى بشكل منفصل وبمرونة كاملة، مع تدريبات أسبوعية ومراجعة دورية من المدرب.",
+                  course.program
+                    ? "المنهج مقسم لمستويين. كل مستوى فيه شرح وتطبيق ومراجعة مع المدرب ومشروع عملي صغير."
+                    : "المنهج مقسم إلى مستويات واضحة. يمكنك دراسة كل مستوى بشكل منفصل وبمرونة كاملة، مع تدريبات أسبوعية ومراجعة دورية من المدرب.",
                 )}
               </p>
             </Reveal>
 
-            <CourseCurriculum key={course.slug} course={course} />
+            {course.program && (
+              <div className="course-path-card">
+                <h3>تفاصيل المستوى {levelIndex + 1}</h3>
+                <p>
+                  السن المقترح: {course.ageRecommendation}. السن استرشادي؛
+                  بنختار المستوى حسب استعداد الطالب وخبرته.
+                </p>
+                <p>كل محاضرة ساعتين، فيها شرح وتطبيق ومراجعة مع المدرب.</p>
+                {course.slug === "scratchjr" && (
+                  <p>
+                    الساعتين متقسمين لأنشطة قصيرة مناسبة للسن، مع فواصل راحة
+                    منتظمة؛ عشان الطفل يتعلم على راحته ويحافظ على تركيزه.
+                  </p>
+                )}
+                {course.slug === "python" && (
+                  <p>
+                    المسار تمهيدي، والمستويين مع بعض ٢٠ ساعة لبناء أساس وتطبيقات
+                    صغيرة. الموضوعات التمهيدية ليها أمثلة قصيرة وموجهة. مرجعنا:{" "}
+                    <a
+                      className="text-link"
+                      href="https://www.w3schools.com/python/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <bdi>W3Schools Python</bdi>
+                    </a>
+                    .
+                  </p>
+                )}
+                <nav aria-label="مستويات البرنامج">
+                  {course.levels.map((level, i) => (
+                    <p key={level.id}>
+                      <Link
+                        className="text-link"
+                        aria-current={i === levelIndex ? "page" : undefined}
+                        to={`/courses/${course.slug}/${level.slug}`}
+                      >
+                        المستوى {i + 1} — {level.ar}
+                      </Link>
+                    </p>
+                  ))}
+                </nav>
+              </div>
+            )}
+            <CourseCurriculum
+              key={
+                course.program ? `${course.slug}-${levelIndex}` : course.slug
+              }
+              course={course}
+              initialLevelIndex={levelIndex}
+            />
+            {course.program && (
+              <div className="course-path-card">
+                <Link
+                  className="text-link"
+                  to={`/courses/${course.slug}/${course.levels[levelIndex === 0 ? 1 : 0].slug}`}
+                >
+                  {levelIndex === 0 ? "اكتشف المستوى 2" : "راجع المستوى الأول"}
+                </Link>
+              </div>
+            )}
             {course.progression && (
               <div className="course-path-card">
                 <h3>{copy("Your learning path", "مسارك التعليمي")}</h3>
@@ -693,7 +826,9 @@ export default function CourseDetails() {
               <span>
                 {copy(
                   "Not sure which level to start with? We conduct a free 10-minute diagnostic session to place you in the perfect level.",
-                  "مش متأكد تبدأ من أنهي مستوى؟ بنعملك جلسة تقييم سريعة مجانية لاختيار المستوى الأنسب لمستواك الحالي.",
+                  course.program
+                    ? "مش متأكد تبدأ من أنهي مستوى؟ اسألنا ونختار مع بعض حسب خبرتك واستعدادك."
+                    : "مش متأكد تبدأ من أنهي مستوى؟ بنعملك جلسة تقييم سريعة مجانية لاختيار المستوى الأنسب لمستواك الحالي.",
                 )}
               </span>
             </div>
@@ -715,7 +850,9 @@ export default function CourseDetails() {
               <p className="course-section-description">
                 {copy(
                   "You don't just watch tutorials. You build end-to-end practical applications from scratch that you can proudly showcase in interviews.",
-                  "مش مجرد شروحات نظرية؛ هتبني مشاريع متكاملة من الصفر بنفسك، تقدر تضيفها لسيرتك الذاتية وتستعرضها في مقابلات العمل.",
+                  course.program
+                    ? "هننفذ مشروع صغير بإرشاد المدرب، ونجربه ونصلح الأخطاء ونراجع اللي اتعلمناه بتقييم عملي."
+                    : "مش مجرد شروحات نظرية؛ هتبني مشاريع متكاملة من الصفر بنفسك، تقدر تضيفها لسيرتك الذاتية وتستعرضها في مقابلات العمل.",
                 )}
               </p>
             </Reveal>
@@ -775,7 +912,9 @@ export default function CourseDetails() {
                   {copy(
                     course.audience?.en ??
                       "High school and university students, career switchers, and developers seeking hands-on mastery with personalized instructor mentoring rather than pre-recorded videos.",
-                    course.audience?.ar ??
+                    (course.program
+                      ? `السن المقترح: ${course.ageRecommendation}. السن استرشادي، وتحديد المستوى حسب استعداد الطالب وخبرته.`
+                      : course.audience?.ar) ??
                       "للطلاب الجامعيين والراغبين في تغيير مسارهم المهني والمطورين الباحثين عن إرشاد مباشر وتطبيق عملي حقيقي بدلاً من الفيديوهات المسجلة الجافة.",
                   )}
                 </p>
@@ -798,7 +937,9 @@ export default function CourseDetails() {
                     <span>
                       {copy(
                         "A PC or Laptop (Windows / Mac / Linux)",
-                        "جهاز كمبيوتر أو لابتوب",
+                        course.slug === "scratchjr"
+                          ? "تابلت أو جهاز متوافق مع ScratchJr"
+                          : "جهاز كمبيوتر أو لابتوب",
                       )}
                     </span>
                   </div>
@@ -831,13 +972,15 @@ export default function CourseDetails() {
                 </Link>
               </Reveal>
             </div>
-            {course.outcomes && (
+            {(course.program ? selectedLevel.outcomes : course.outcomes) && (
               <div className="course-path-card">
                 <h3>
                   {copy("What you will be able to build", "ما ستتمكن من بنائه")}
                 </h3>
                 <ul>
-                  {course.outcomes.map((outcome) => (
+                  {(course.program
+                    ? selectedLevel.outcomes
+                    : course.outcomes)!.map((outcome) => (
                     <li key={outcome.en}>{local(outcome)}</li>
                   ))}
                 </ul>
@@ -881,7 +1024,9 @@ export default function CourseDetails() {
                   ),
                   desc: copy(
                     "Receive constructive weekly feedback on your assignments to adopt professional coding standards and clean habits.",
-                    "واجباتك ومشاريعك بتتراجع سطر بسطر مع ملاحظات لتكتب كود نظيف متوافق مع معايير الشركات.",
+                    course.program
+                      ? "نجرب خطوات المشروع مع المدرب، ونراجع الأخطاء ونفهم إزاي نصلحها."
+                      : "واجباتك ومشاريعك بتتراجع سطر بسطر مع ملاحظات لتكتب كود نظيف متوافق مع معايير الشركات.",
                   ),
                 },
                 {
@@ -892,18 +1037,22 @@ export default function CourseDetails() {
                   ),
                   desc: copy(
                     "Have a question between sessions? Reach out to the instructor directly without waiting for the next week.",
-                    "واقف في مشكلة أثناء المذاكرة؟ تواصل مع المدرب مباشرة في أي وقت بدون ما تستنى المحاضرة اللي بعدها.",
+                    course.program
+                      ? "اسألنا عن أي نقطة مش واضحة، وعن المواعيد المتاحة وطريقة الحجز."
+                      : "واقف في مشكلة أثناء المذاكرة؟ تواصل مع المدرب مباشرة في أي وقت بدون ما تستنى المحاضرة اللي بعدها.",
                   ),
                 },
                 {
                   icon: Award,
                   title: copy(
                     "Verified Certificate of Completion",
-                    "شهادة إتمام معتمدة",
+                    course.program ? "مشروع وتقييم عملي" : "شهادة إتمام معتمدة",
                   ),
                   desc: copy(
                     "Earn a verifiable MindCode Academy certificate upon completing your level and delivering your practical capstone.",
-                    "احصل على شهادة موثقة من مايندكود تثبت إنجازك للمستوى وتسليمك للمشاريع العملية المطلوبة.",
+                    course.program
+                      ? "نجرب مشروع المستوى مع المدرب ونراجع المهارات اللي اتعلمناها خطوة بخطوة."
+                      : "احصل على شهادة موثقة من مايندكود تثبت إنجازك للمستوى وتسليمك للمشاريع العملية المطلوبة.",
                   ),
                 },
               ].map((item, idx) => (
@@ -963,7 +1112,13 @@ export default function CourseDetails() {
                     type="button"
                     className={`level-pill-btn ${levelIndex === idx ? "is-selected" : ""}`}
                     aria-pressed={levelIndex === idx}
-                    onClick={() => setLevelSelection({ slug, index: idx })}
+                    onClick={() =>
+                      course.program
+                        ? navigate(
+                            `/courses/${course.slug}/${course.levels[idx].slug}`,
+                          )
+                        : setLevelSelection({ slug, index: idx })
+                    }
                   >
                     {t("level")} {idx + 1}
                   </button>
@@ -976,9 +1131,9 @@ export default function CourseDetails() {
             </p>
 
             <div className="course-enrollment-price">
-              {course.oldPrice && (
+              {selectedOldPrice && (
                 <del style={{ color: "var(--muted)" }}>
-                  {course.oldPrice.toLocaleString("en-US")}
+                  {selectedOldPrice.toLocaleString("en-US")}
                 </del>
               )}
               <strong>{selectedPrice.toLocaleString("en-US")}</strong>
@@ -1034,14 +1189,18 @@ export default function CourseDetails() {
                   Icon: Code2,
                   text: copy(
                     "Weekly practical assignments & reviews",
-                    "مشاريع وواجبات تطبيقية أسبوعية",
+                    course.program
+                      ? "تمارين عملية ومراجعة مع المدرب"
+                      : "مشاريع وواجبات تطبيقية أسبوعية",
                   ),
                 },
                 {
                   Icon: Award,
                   text: copy(
                     "Certificate upon project completion",
-                    "شهادة إتمام بعد تسليم المشروع",
+                    course.program
+                      ? "مشروع وتقييم عملي مع المدرب"
+                      : "شهادة إتمام بعد تسليم المشروع",
                   ),
                 },
               ].map(({ Icon, text }, i) => (
@@ -1073,7 +1232,9 @@ export default function CourseDetails() {
             <p className="course-enrollment-disclosure">
               {copy(
                 "Each level is paid separately with full flexibility. No upfront commitment for the whole track.",
-                "يتم سداد كل مستوى بشكل منفصل بمرونة تامة. لا يوجد أي إلزام بدفع المسار كاملاً مسبقاً.",
+                course.program
+                  ? "السعر لكل طالب للمستوى في مجموعة صغيرة أونلاين. إرسال الاستفسار مش تأكيد للحجز؛ فريق الأكاديمية هيوضحلك المواعيد والخطوات."
+                  : "يتم سداد كل مستوى بشكل منفصل بمرونة تامة. لا يوجد أي إلزام بدفع المسار كاملاً مسبقاً.",
               )}
             </p>
           </Reveal>
@@ -1102,6 +1263,11 @@ export default function CourseDetails() {
         <div className="mobile-bar-info">
           <strong>{course.name}</strong>
           <span>
+            {course.program && selectedOldPrice && (
+              <>
+                <del>{selectedOldPrice.toLocaleString("en-US")}</del>{" "}
+              </>
+            )}
             {selectedPrice.toLocaleString("en-US")}{" "}
             {copy("EGP / level", "ج.م / مستوى")}
           </span>
