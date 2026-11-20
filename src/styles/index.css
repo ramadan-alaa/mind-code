@@ -776,6 +776,8 @@ h2 {
   gap: 17px;
 }
 .course-card {
+  display: flex;
+  flex-direction: column;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 23px 21px 16px;
@@ -868,6 +870,7 @@ h2 {
   width: 12px;
 }
 .course-price {
+  margin-top: auto;
   border-top: 1px solid var(--border);
   padding-block: 15px 18px;
 }

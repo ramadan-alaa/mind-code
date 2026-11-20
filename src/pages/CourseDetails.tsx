@@ -394,14 +394,7 @@ function SharedCourseDetails() {
 
             <h1 className="course-main-heading">
               <span className="heading-sub">
-                {isBackendOverview
-                  ? copy(
-                      "Backend track — 4 levels",
-                      "مسار تطوير الـBack-End — ٤ مستويات",
-                    )
-                  : course.program
-                    ? `${t("level")} ${levelIndex + 1}`
-                    : copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
+                {copy("Master Real Skills.", "اتقن مهارات حقيقية.")}
               </span>
               <br />
               {copy("Build with", "ابنِ مشروعاتك بـ")}{" "}
