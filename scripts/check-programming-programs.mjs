@@ -182,8 +182,8 @@ try {
               "dir",
               lang === "ar" ? "rtl" : "ltr",
             );
-            await expect(page.locator("h1")).toContainText(
-              `${lang === "ar" ? "المستوى" : "Level"} ${n}`,
+            await expect(page.locator("h1 .heading-sub")).toHaveText(
+              lang === "ar" ? "اتقن مهارات حقيقية." : "Master Real Skills.",
             );
             await expect(
               page.locator(".course-enrollment-price strong"),

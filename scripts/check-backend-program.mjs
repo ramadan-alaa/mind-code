@@ -234,10 +234,10 @@ try {
           ).toHaveAttribute("content", await page.title());
           if (lang === "ar" && theme === "dark" && width === 360)
             titles.add(await page.title());
+          await expect(page.locator("h1 .heading-sub")).toHaveText(
+            lang === "ar" ? "اتقن مهارات حقيقية." : "Master Real Skills.",
+          );
           if (n) {
-            await expect(page.locator("h1")).toContainText(
-              `${lang === "ar" ? "المستوى" : "Level"} ${n}`,
-            );
             await expect(page.locator(".course-main-desc")).toContainText(
               course.levels[n - 1].overview[lang],
             );
@@ -251,9 +251,6 @@ try {
               page.locator(".curriculum-level.is-expanded .curriculum-meta"),
             ).toContainText("12");
           } else {
-            await expect(page.locator("h1")).toContainText(
-              lang === "ar" ? "٤ مستويات" : "4 levels",
-            );
             await expect(page.locator(".course-quick-facts")).toContainText(
               "24",
             );

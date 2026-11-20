@@ -181,8 +181,8 @@ try {
           "lang",
           lang,
         );
-        await expect(page.locator("h1")).toContainText(
-          `${lang === "ar" ? "المستوى" : "Level"} ${index + 1}`,
+        await expect(page.locator("h1 .heading-sub")).toHaveText(
+          lang === "ar" ? "اتقن مهارات حقيقية." : "Master Real Skills.",
         );
         await expect(page.locator(".course-main-desc")).toContainText(
           level.overview[lang],

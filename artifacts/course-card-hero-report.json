@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "cardCases": 40,
+  "heroCases": 28,
+  "errors": [],
+  "screenshots": [
+    "artifacts/course-card-footer-en.png",
+    "artifacts/course-hero-heading-en.png",
+    "artifacts/course-card-footer-ar.png",
+    "artifacts/course-hero-heading-ar.png"
+  ]
+}
