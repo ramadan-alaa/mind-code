@@ -12,6 +12,9 @@ import {
   Plus,
   GitBranch,
   Wind,
+  Blocks,
+  Gamepad2,
+  Terminal,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import type { Course, Localized } from "../data/courses";
@@ -130,7 +133,13 @@ export function TechIcon({ course }: { course: Course }) {
       className={`tech-icon tech-${course.slug}`}
       style={{ "--tech": course.color } as CSSProperties}
     >
-      {course.slug === "git-github" ? (
+      {course.slug === "scratchjr" ? (
+        <Blocks aria-label="ScratchJr" size={28} />
+      ) : course.slug === "scratch" ? (
+        <Gamepad2 aria-label="Scratch" size={28} />
+      ) : course.slug === "python" ? (
+        <Terminal aria-label="Python" size={28} />
+      ) : course.slug === "git-github" ? (
         <GitBranch aria-label="Git" size={28} />
       ) : course.slug === "tailwind-css" ? (
         <Wind aria-label="Tailwind CSS" size={28} />
@@ -149,7 +158,7 @@ export function CourseCard({ course }: { course: Course }) {
         <span className="small-label">{t(course.difficulty)}</span>
       </div>
       <h3>{course.name}</h3>
-      <p>{local(course.description)}</p>
+      <p>{local(course.cardDescription ?? course.description)}</p>
       <div className="course-facts">
         <span>
           <Layers3 size={14} />

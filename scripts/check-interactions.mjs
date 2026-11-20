@@ -14,17 +14,25 @@ const page = await browser.newPage({
   reducedMotion: "reduce",
 });
 const origin = process.env.TEST_URL || "http://localhost:5173";
+// Isolate the unconfigured-number branch without changing business configuration.
+await page.route("**/src/config/academy.ts", async (route) => {
+  const response = await route.fetch();
+  await route.fulfill({
+    response,
+    body: (await response.text()).replace(/whatsapp: "[^"]*"/, 'whatsapp: ""'),
+  });
+});
 const results = [];
 await page.goto(origin + "/courses");
 await page.locator("h1").waitFor();
-assert.equal(await page.locator(".course-card").count(), 8);
-assert.equal(await page.locator(".upcoming-card").count(), 4);
+assert.equal(await page.locator(".course-card").count(), 11);
+assert.equal(await page.locator(".upcoming-card").count(), 2);
 await page.getByRole("textbox", { name: "Search courses" }).fill("React");
 assert.equal(await page.locator(".course-card").count(), 2);
 await page.getByRole("textbox", { name: "Search courses" }).fill("no-match");
 assert.equal(await page.locator(".course-card").count(), 0);
 await page.getByRole("button", { name: "Reset filters" }).click();
-assert.equal(await page.locator(".course-card").count(), 8);
+assert.equal(await page.locator(".course-card").count(), 11);
 await page
   .getByLabel("Difficulty", { exact: true })
   .selectOption("intermediate");
@@ -32,7 +40,7 @@ assert.equal(await page.locator(".course-card").count(), 2);
 await page.getByLabel("Difficulty", { exact: true }).selectOption("all");
 await page.getByLabel("Availability", { exact: true }).selectOption("soon");
 assert.equal(await page.locator(".course-card").count(), 0);
-assert.equal(await page.locator(".upcoming-card").count(), 4);
+assert.equal(await page.locator(".upcoming-card").count(), 2);
 results.push(
   "Catalog search, empty state, reset, difficulty and availability filters pass",
 );
@@ -54,7 +62,7 @@ await page
 await page.locator("#course").waitFor();
 assert.equal(await page.locator("#course").inputValue(), "react");
 results.push("Course levels expand and inquiry preselects course");
-await page.getByRole("button", { name: "Review inquiry" }).click();
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
 assert((await page.locator(".field-error").count()) >= 5);
 await page.locator("#name").fill("Test learner");
 await page.locator("#age").selectOption("12-17");
@@ -62,11 +70,11 @@ await page.locator("#experience").selectOption("none");
 await page.locator("#method").selectOption("whatsapp");
 await page.locator("#phone").fill("+201000000000");
 await page.locator("input[type=checkbox]").check();
-await page.getByRole("button", { name: "Review inquiry" }).click();
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
 await page.waitForTimeout(50);
 assert(await page.locator("#guardian-error").isVisible());
 await page.locator("#guardian").fill("Test guardian");
-await page.getByRole("button", { name: "Review inquiry" }).click();
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
 await page.locator(".form-result").waitFor();
 assert(
   await page
@@ -78,7 +86,7 @@ results.push(
   "Required validation, minor guardian requirement, consent and disabled unconfigured handoff pass",
 );
 await page.locator("#name").fill("");
-await page.getByRole("button", { name: "Review inquiry" }).click();
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
 await page.locator("#name-error").waitFor();
 await page.locator(".language-button").click();
 await page.waitForFunction(() =>
@@ -119,7 +127,7 @@ results.push("FAQ keyboard expansion passes");
 await page.route("**/src/config/academy.ts", async (route) => {
   const response = await route.fetch();
   const body = (await response.text()).replace(
-    'whatsapp: ""',
+    /whatsapp: "[^"]*"/,
     'whatsapp: "201000000000"',
   );
   await route.fulfill({ response, body });
@@ -134,8 +142,8 @@ await page.locator("#experience").selectOption("none");
 await page.locator("#method").selectOption("whatsapp");
 await page.locator("#phone").fill("+201000000000");
 await page.locator("input[type=checkbox]").check();
-await page.getByRole("button", { name: "Review inquiry" }).click();
-const handoff = page.getByRole("link", { name: "Continue to WhatsApp" });
+await page.getByRole("button", { name: "Review WhatsApp inquiry" }).click();
+const handoff = page.getByRole("link", { name: "Open WhatsApp & send" });
 await handoff.waitFor();
 const url = new URL(await handoff.getAttribute("href"));
 assert.equal(url.hostname, "wa.me");

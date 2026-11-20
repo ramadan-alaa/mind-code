@@ -32,6 +32,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Route index element={<Home />} />
               <Route path="courses" element={<Courses />} />
               <Route path="courses/:slug" element={<CourseDetails />} />
+              <Route
+                path="courses/:slug/:levelSlug"
+                element={<CourseDetails />}
+              />
               <Route path="about" element={<About />} />
               <Route path="contact" element={<Contact />} />
               <Route path="*" element={<NotFound />} />
