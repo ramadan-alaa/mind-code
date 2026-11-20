@@ -18,7 +18,15 @@ export default function Courses() {
   const [status, setStatus] = useState("all");
   const current = courses.filter(
     (c) =>
-      (c.name + " " + local(c.description))
+      (
+        c.name +
+        " " +
+        (c.localizedName
+          ? local(c.localizedName).replace(/\u00a0/g, " ")
+          : c.name) +
+        " " +
+        local(c.description)
+      )
         .toLowerCase()
         .includes(search.toLowerCase()) &&
       (difficulty === "all" || c.difficulty === difficulty) &&

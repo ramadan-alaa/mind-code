@@ -14,7 +14,7 @@ import { useTranslation as useTranslationBridge } from "react-i18next";
 import { academy } from "../config/academy";
 import { courses } from "../data/courses";
 export default function Layout() {
-  const { t, ar, copy } = useCopy();
+  const { t, ar, copy, courseName } = useCopy();
   const [menu, setMenu] = useState(false);
   const [theme, setTheme] = useState(
     document.documentElement.dataset.theme || "dark",
@@ -162,7 +162,7 @@ export default function Layout() {
               <div className="footer-course-links">
                 {courses.map((course) => (
                   <Link key={course.slug} to={`/courses/${course.slug}`}>
-                    <bdi>{course.name}</bdi>
+                    <bdi>{courseName(course)}</bdi>
                   </Link>
                 ))}
               </div>

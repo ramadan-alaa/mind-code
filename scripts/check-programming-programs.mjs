@@ -98,8 +98,8 @@ try {
     courses: (await import("/src/data/courses.ts")).courses,
     academy: (await import("/src/config/academy.ts")).academy,
   }));
-  assert.equal(courses.length, 11);
-  assert.equal(new Set(courses.map((course) => course.slug)).size, 11);
+  assert.equal(courses.length, 12);
+  assert.equal(new Set(courses.map((course) => course.slug)).size, 12);
   assert.deepEqual(
     courses
       .slice(0, 8)
@@ -156,10 +156,10 @@ try {
         .filter((c) => c.program)
         .flatMap((c) => c.levels.map((level) => level.id)),
     ).size,
-    6,
+    10,
   );
 
-  for (const lang of ["ar"])
+  for (const lang of ["ar", "en"])
     for (const theme of ["dark", "light"]) {
       await page.evaluate(
         ({ lang, theme }) => {
@@ -180,9 +180,11 @@ try {
             assert.deepEqual(await template(), originalTemplate);
             await expect(page.locator(".course-detail")).toHaveAttribute(
               "dir",
-              "rtl",
+              lang === "ar" ? "rtl" : "ltr",
             );
-            await expect(page.locator("h1")).toContainText(`المستوى ${n}`);
+            await expect(page.locator("h1")).toContainText(
+              `${lang === "ar" ? "المستوى" : "Level"} ${n}`,
+            );
             await expect(
               page.locator(".course-enrollment-price strong"),
             ).toHaveText(price.toLocaleString("en-US"));
@@ -216,7 +218,9 @@ try {
             await expect(
               page.locator('meta[property="og:url"]'),
             ).toHaveAttribute("content", academy.siteUrl + route);
-            await expect(page).toHaveTitle(new RegExp(`المستوى ${n}`));
+            await expect(page).toHaveTitle(
+              new RegExp(`${lang === "ar" ? "المستوى" : "Level"} ${n}`),
+            );
             for (const cta of await page
               .locator(
                 '.course-intro-actions a[href^="/contact"], .course-enrollment-column a[href^="/contact"], .mobile-sticky-enrollment-bar a',
@@ -236,7 +240,11 @@ try {
                   .get("text")
                   .includes(courses.find((c) => c.slug === slug).name),
               );
-              assert(url.searchParams.get("text").includes(`المستوى ${n}`));
+              assert(
+                url.searchParams
+                  .get("text")
+                  .includes(`${lang === "ar" ? "المستوى" : "level"} ${n}`),
+              );
             }
             await page.locator(".curriculum-toggle-all").click();
             await expect(page.locator(".curriculum-session")).toHaveCount(
