@@ -1,6 +1,7 @@
 import { professionalCourses } from "./professionalCourses";
 import { programmingPrograms } from "./programmingPrograms";
 import { backendProgram } from "./backendProgram";
+import { learningTracks } from "./learningTracks";
 export type Localized = { en: string; ar: string };
 export interface CourseSession {
   number: number;
@@ -28,10 +29,15 @@ export const courseCategories = {
   languages: { en: "Programming Languages", ar: "لغات البرمجة" },
   styling: { en: "Styling Tools", ar: "أدوات التنسيق" },
   tools: { en: "Developer Tools", ar: "أدوات المطور" },
+  ai: { en: "Artificial Intelligence", ar: "الذكاء الاصطناعي" },
+  data: { en: "Data Science & Analysis", ar: "علم البيانات وتحليلها" },
 } satisfies Record<string, Localized>;
 export type CourseCategory = keyof typeof courseCategories;
 export interface Course {
   program?: boolean;
+  overviewPage?: boolean;
+  inquiryLabel?: Localized;
+  sessionCountsProposed?: boolean;
   ageRecommendation?: Localized;
   localizedName?: Localized;
   slug: string;
@@ -196,6 +202,7 @@ export const courses: Course[] = [
   ...professionalCourses,
   ...programmingPrograms,
   backendProgram,
+  ...learningTracks,
 ];
 export const courseCategory = (course: Course): CourseCategory =>
   course.category ??
@@ -233,18 +240,24 @@ export const tracks = [
     en: "Full Stack Development",
     ar: "تطوير الويب المتكامل",
     icon: "⌘",
-    available: false,
+    available: true,
   },
   {
     en: "Python Programming",
-    ar: "برمجة بايثون",
+    ar: "البرمجة بلغة بايثون",
     icon: "Py",
     available: true,
   },
   {
     en: "AI & Machine Learning",
-    ar: "الذكاء الاصطناعي",
+    ar: "الذكاء الاصطناعي وتعلّم الآلة",
     icon: "✧",
-    available: false,
+    available: true,
+  },
+  {
+    en: "Data Science & Data Analysis",
+    ar: "علم البيانات وتحليلها",
+    icon: "▥",
+    available: true,
   },
 ];

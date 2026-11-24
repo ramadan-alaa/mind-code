@@ -21,7 +21,7 @@ const expected = [
   ["git-github", 1, 4, 8, 700, 700, 8],
   ["tailwind-css", 1, 5, 10, 900, 900, 10],
   ["typescript", 2, 5, 10, 1200, 2400, 20],
-  ["nextjs", 3, 6, 12, 1600, 4800, 36],
+  ["nextjs", 3, 6, 12, 1400, 4200, 36],
 ];
 await page.goto(origin + "/courses", { waitUntil: "domcontentloaded" });
 await page.locator("h1").waitFor();
@@ -29,7 +29,7 @@ const data = await page.evaluate(async () => {
   const { courses, courseTotals } = await import("/src/data/courses.ts");
   return courses.map((course) => ({ ...course, totals: courseTotals(course) }));
 });
-assert.equal(data.length, 12);
+assert.equal(data.length, 15);
 assert.deepEqual(
   data
     .slice(0, 4)
@@ -83,9 +83,11 @@ await page.getByRole("textbox", { name: "Search courses" }).fill("");
 for (const [category, count] of [
   ["fundamentals", 2],
   ["frameworks", 2],
-  ["languages", 6],
+  ["languages", 7],
   ["styling", 1],
   ["tools", 1],
+  ["ai", 1],
+  ["data", 1],
 ]) {
   await page.getByLabel("Category", { exact: true }).selectOption(category);
   assert.equal(await page.locator(".course-card").count(), count);

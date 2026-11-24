@@ -1819,3 +1819,23 @@
     overflow-wrap: anywhere;
   }
 }
+
+/* Long bilingual level titles in the new tracks need the full mobile title column. */
+@media (max-width: 600px) {
+  .learning-track .curriculum-trigger {
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    align-items: start;
+  }
+  .learning-track .curriculum-title {
+    flex-wrap: wrap;
+  }
+  .learning-track .curriculum-level-badge {
+    flex-basis: 100%;
+    overflow-wrap: anywhere;
+  }
+  .learning-track .curriculum-trigger-meta {
+    grid-column: 2;
+    justify-self: end;
+  }
+}

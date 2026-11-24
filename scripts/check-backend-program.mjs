@@ -100,8 +100,8 @@ try {
       academy: (await import("/src/config/academy.ts")).academy,
     };
   });
-  assert.equal(courses.length, 12);
-  assert.equal(new Set(courses.map((c) => c.slug)).size, 12);
+  assert.equal(courses.length, 15);
+  assert.equal(new Set(courses.map((c) => c.slug)).size, 15);
   // Eight unrelated course records remain unchanged; program translations are now intentional changes.
   assert.equal(
     createHash("sha256")
@@ -111,12 +111,12 @@ try {
     "Unrelated course content and pricing must remain unchanged",
   );
   const course = courses.find((c) => c.slug === "backend");
-  assert.deepEqual(totals, { price: 7200, sessions: 24, hours: 48 });
+  assert.deepEqual(totals, { price: 6400, sessions: 24, hours: 48 });
   assert.deepEqual(
-    [course.price, course.sessions, course.hours, course.levels.length],
-    [1800, 6, 12, 4],
+    [course.price, course.oldPrice, course.sessions, course.hours, course.levels.length],
+    [1600, 1800, 6, 12, 4],
   );
-  assert(!course.oldPrice && !course.proposedOriginalPrice && !course.image);
+  assert(!course.proposedOriginalPrice && !course.image);
   localized(course.description);
   localized(course.prerequisites);
   localized(course.cardDescription);
@@ -132,8 +132,8 @@ try {
     assert.equal(level.id, `backend-level-${i + 1}`);
     assert.equal(level.slug, `level-${i + 1}`);
     assert.equal(level.en, levelNames[i]);
-    assert.equal(level.price, 1800);
-    assert.equal(level.oldPrice, undefined);
+    assert.equal(level.price, 1600);
+    assert.equal(level.oldPrice, 1800);
     assert.equal(level.proposedOriginalPrice, undefined);
     assert.equal(level.hoursPerSession, 2);
     assert.equal(level.sessions.length, 6);
@@ -174,7 +174,10 @@ try {
         await expect(cardFor("backend").locator(".tech-icon svg")).toHaveCount(
           1,
         );
-        await expect(cardFor("backend").locator("img, del")).toHaveCount(0);
+        await expect(cardFor("backend").locator("img")).toHaveCount(0);
+        await expect(cardFor("backend").locator(".course-price del")).toHaveText(
+          "1,800",
+        );
         await expect(cardFor("backend").locator(".course-facts")).toContainText(
           "24",
         );
@@ -183,7 +186,7 @@ try {
         );
         await expect(
           cardFor("backend").locator(".course-price strong"),
-        ).toContainText("1,800");
+        ).toContainText("1,600");
         await checkOverflow("/courses", width, lang, theme);
 
         for (const n of [0, 1, 2, 3, 4]) {
@@ -196,12 +199,13 @@ try {
           );
           await expect(
             page.locator(".course-enrollment-price strong"),
-          ).toHaveText("1,800");
+          ).toHaveText("1,600");
           await expect(
-            page.locator(
-              ".course-enrollment-price del, .curriculum-price-tag del, .mobile-bar-info del",
-            ),
-          ).toHaveCount(0);
+            page.locator(".course-enrollment-price del"),
+          ).toHaveText("1,800");
+          await expect(page.locator(".mobile-bar-info del")).toHaveText(
+            "1,800",
+          );
           await expect(
             page.locator(".course-enrollment-top .tech-icon svg"),
           ).toHaveCount(1);
@@ -214,7 +218,7 @@ try {
             ),
           ).toHaveCount(4);
           await expect(page.locator(".course-total-note")).toContainText(
-            "7,200",
+            "6,400",
           );
           await expect(page.locator(".course-total-note")).toContainText("48");
           await expect(page.locator(".course-total-note")).toContainText("24");
@@ -309,7 +313,7 @@ try {
           );
           await expect(
             page.locator(".curriculum-level .curriculum-price-tag del"),
-          ).toHaveCount(0);
+          ).toHaveCount(4);
           await checkOverflow(route, width, lang, theme);
           if (width === 390)
             await expect(
@@ -450,7 +454,7 @@ try {
   assert.deepEqual(report.accessibility, []);
   report.passed = true;
   console.log(
-    `PASS: ${report.cases} responsive cases; 24 bilingual sessions; 7,200 EGP/48 hours; unchanged existing courses; shared templates; navigation; four WhatsApp handoffs; accessibility.`,
+    `PASS: ${report.cases} responsive cases; 24 bilingual sessions; 6,400 EGP/48 hours; unchanged existing courses; shared templates; navigation; four WhatsApp handoffs; accessibility.`,
   );
 } finally {
   await fs.writeFile(

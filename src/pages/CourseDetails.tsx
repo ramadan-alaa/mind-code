@@ -279,33 +279,43 @@ function SharedCourseDetails() {
   const selectedPrice = selectedLevel.price ?? course.price;
   const selectedOldPrice = selectedLevel.oldPrice ?? course.oldPrice;
   const totals = courseTotals(course);
-  const isBackendOverview = course.slug === "backend" && !levelSlug;
-  const overview = isBackendOverview
+  const isTrackOverview =
+    (course.slug === "backend" || course.overviewPage) && !levelSlug;
+  const selectedSessions = selectedLevel.sessions?.length ?? course.sessions;
+  const selectedHours = selectedLevel.sessions
+    ? selectedSessions * (selectedLevel.hoursPerSession ?? 2)
+    : course.hours;
+  const overview = isTrackOverview
     ? course.description
     : (selectedLevel.overview ?? course.description);
-  const outcomes = isBackendOverview
+  const outcomes = isTrackOverview
     ? course.outcomes
     : course.program
       ? selectedLevel.outcomes
       : course.outcomes;
   const pageTitle = {
-    en: isBackendOverview
-      ? `${names.en} — Backend track`
+    en: isTrackOverview
+      ? `${names.en} — ${course.slug === "backend" ? "Backend track" : "Learning track"}`
       : `${names.en} — Level ${levelIndex + 1}: ${selectedLevel.en}`,
     ar: isolateTechnicalText(
-      isBackendOverview
-        ? `${names.ar} — مسار تطوير الـBack-End`
+      isTrackOverview
+        ? `${names.ar} — ${course.slug === "backend" ? "مسار تطوير الـBack-End" : "مسار تعلّم"}`
         : `${names.ar} — المستوى ${levelIndex + 1}: ${selectedLevel.ar}`,
     ),
   };
   const pageDescription = {
-    en: isBackendOverview
-      ? `Learn C# and ASP.NET Core backend development online: ${course.levels.length} levels, ${totals.sessions} sessions and ${totals.hours} hours. Each level costs ${course.price.toLocaleString("en-US")} EGP; the complete track costs ${totals.price.toLocaleString("en-US")} EGP.`
-      : `${overview.en} Level ${levelIndex + 1}: ${selectedLevel.en}, ${course.sessions} sessions, ${course.hours} hours, ${selectedPrice.toLocaleString("en-US")} EGP per learner and level.`,
+    en:
+      isTrackOverview && course.overviewPage
+        ? `${overview.en} ${course.levels.length} levels, ${totals.sessions} proposed sessions. ${course.price.toLocaleString("en-US")} EGP per learner and level.`
+        : isTrackOverview
+          ? `Learn C# and ASP.NET Core backend development online: ${course.levels.length} levels, ${totals.sessions} sessions and ${totals.hours} hours. Each level costs ${course.price.toLocaleString("en-US")} EGP; the complete track costs ${totals.price.toLocaleString("en-US")} EGP.`
+          : `${overview.en} Level ${levelIndex + 1}: ${selectedLevel.en}, ${selectedSessions} ${course.sessionCountsProposed ? "proposed sessions" : "sessions"}, ${selectedHours} hours, ${selectedPrice.toLocaleString("en-US")} EGP per learner and level.`,
     ar: isolateTechnicalText(
-      isBackendOverview
-        ? `تعلم تطوير الـBack-End باستخدام C# وASP.NET Core أونلاين: ٤ مستويات، ${totals.sessions} محاضرة، ${totals.hours} ساعة. كل مستوى بـ${course.price.toLocaleString("en-US")} جنيه، والمسار بالكامل بـ${totals.price.toLocaleString("en-US")} جنيه.`
-        : `${overview.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${course.sessions} محاضرات، ${course.hours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`,
+      isTrackOverview && course.overviewPage
+        ? `${overview.ar} ${course.levels.length} مستويات، ${totals.sessions} محاضرة مقترحة. ${course.price.toLocaleString("en-US")} جنيه لكل طالب لكل مستوى.`
+        : isTrackOverview
+          ? `تعلم تطوير الـBack-End باستخدام C# وASP.NET Core أونلاين: ٤ مستويات، ${totals.sessions} محاضرة، ${totals.hours} ساعة. كل مستوى بـ${course.price.toLocaleString("en-US")} جنيه، والمسار بالكامل بـ${totals.price.toLocaleString("en-US")} جنيه.`
+          : `${overview.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${selectedSessions} ${course.sessionCountsProposed ? "محاضرات مقترحة" : "محاضرات"}، ${selectedHours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`,
     ),
   };
   const enrollmentUrl = `/contact?course=${course.slug}&level=${levelIndex + 1}`;
@@ -329,7 +339,7 @@ function SharedCourseDetails() {
 
   return (
     <div
-      className="course-detail"
+      className={`course-detail${course.overviewPage ? " learning-track" : ""}`}
       lang={course.program ? (ar ? "ar" : "en") : undefined}
       dir={course.program ? (ar ? "rtl" : "ltr") : undefined}
       style={
@@ -404,7 +414,7 @@ function SharedCourseDetails() {
             </h1>
 
             <p className="course-main-desc">
-              {course.program && !isBackendOverview && (
+              {course.program && !isTrackOverview && (
                 <>{content(selectedLevel)} — </>
               )}
               {content(overview)}
@@ -435,7 +445,9 @@ function SharedCourseDetails() {
 
             <div className="course-intro-actions">
               <ButtonLink to={enrollmentUrl}>
-                {copy("Enroll / Inquire Now", "سجّل أو استفسر الآن")}
+                {course.inquiryLabel
+                  ? content(course.inquiryLabel)
+                  : copy("Enroll / Inquire Now", "سجّل أو استفسر الآن")}
               </ButtonLink>
 
               <a
@@ -755,18 +767,23 @@ function SharedCourseDetails() {
             },
             {
               Icon: CalendarDays,
-              value: `${isBackendOverview ? totals.sessions : course.sessions}`,
-              label: isBackendOverview
+              value: `${isTrackOverview ? totals.sessions : selectedSessions}`,
+              label: isTrackOverview
                 ? copy("Total sessions", "إجمالي المحاضرات")
                 : t("sessions"),
-              sub: course.program
-                ? copy("2 hours per session", "ساعتين لكل محاضرة")
-                : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
+              sub: course.sessionCountsProposed
+                ? copy(
+                    "Proposed count · 2 hours per session",
+                    "عدد مقترح · ساعتين لكل محاضرة",
+                  )
+                : course.program
+                  ? copy("2 hours per session", "ساعتين لكل محاضرة")
+                  : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
             },
             {
               Icon: Clock3,
-              value: `${isBackendOverview ? totals.hours : course.hours}`,
-              label: isBackendOverview
+              value: `${isTrackOverview ? totals.hours : selectedHours}`,
+              label: isTrackOverview
                 ? copy("Total hours", "إجمالي الساعات")
                 : t("hours"),
               sub: copy("Intensive learning", "تدريب وتطبيق مركز"),
@@ -887,19 +904,21 @@ function SharedCourseDetails() {
             {course.program && (
               <div className="course-path-card">
                 <h3>
-                  {isBackendOverview
+                  {isTrackOverview
                     ? copy("Track details", "تفاصيل المسار")
                     : copy(
                         `Level ${levelIndex + 1} details`,
                         `تفاصيل المستوى ${levelIndex + 1}`,
                       )}
                 </h3>
-                <p>
-                  {copy(
-                    `Recommended age: ${ageRecommendation}. Age is a guideline; placement depends on the learner’s readiness and experience.`,
-                    `السن المقترح: ${ageRecommendation}. السن استرشادي؛ بنختار المستوى حسب استعداد الطالب وخبرته.`,
-                  )}
-                </p>
+                {ageRecommendation && (
+                  <p>
+                    {copy(
+                      `Recommended age: ${ageRecommendation}. Age is a guideline; placement depends on the learner’s readiness and experience.`,
+                      `السن المقترح: ${ageRecommendation}. السن استرشادي؛ بنختار المستوى حسب استعداد الطالب وخبرته.`,
+                    )}
+                  </p>
+                )}
                 <p>
                   {copy(
                     "Each two-hour session includes explanation, practice and instructor review.",
@@ -937,7 +956,7 @@ function SharedCourseDetails() {
                       <Link
                         className="text-link"
                         aria-current={
-                          !isBackendOverview && i === levelIndex
+                          !isTrackOverview && i === levelIndex
                             ? "page"
                             : undefined
                         }
@@ -949,6 +968,14 @@ function SharedCourseDetails() {
                   ))}
                 </nav>
               </div>
+            )}
+            {course.sessionCountsProposed && (
+              <p className="course-section-description">
+                {copy(
+                  `Session counts are proposed for local preview and await academy approval. Track total: ${totals.sessions} sessions across ${course.levels.length} levels. Ask about available schedules and placement.`,
+                  `أعداد المحاضرات مقترحة للمعاينة المحلية ومستنية موافقة الأكاديمية. إجمالي المسار: ${totals.sessions} محاضرة على ${course.levels.length} مستويات. اسألنا عن المواعيد المتاحة والمستوى المناسب ليك.`,
+                )}
+              </p>
             )}
             <CourseCurriculum
               key={
@@ -986,7 +1013,9 @@ function SharedCourseDetails() {
               <div className="course-path-card">
                 <h3>{copy("Your learning path", "مسارك التعليمي")}</h3>
                 <p>{local(course.progression)}</p>
-                <p dir="ltr">HTML → CSS → JavaScript → React</p>
+                {!course.overviewPage && (
+                  <p dir="ltr">HTML → CSS → JavaScript → React</p>
+                )}
                 <Link className="text-link" to="/courses">
                   {copy(
                     "Compare courses and prerequisites",
@@ -1115,7 +1144,7 @@ function SharedCourseDetails() {
                 </h3>
                 <p>
                   {content(
-                    selectedLevel.overview && !isBackendOverview
+                    selectedLevel.overview && !isTrackOverview
                       ? (selectedLevel.prerequisites ?? course.prerequisites)
                       : course.prerequisites,
                   )}
@@ -1145,7 +1174,9 @@ function SharedCourseDetails() {
                     <Check size={14} />
                     <span>
                       {copy(
-                        "Curiosity and 3-4 hours weekly practice",
+                        course.overviewPage
+                          ? "Curiosity and time for practical exercises"
+                          : "Curiosity and 3-4 hours weekly practice",
                         "الرغبة في التعلم وتخصيص وقت للتطبيق",
                       )}
                     </span>
@@ -1347,12 +1378,15 @@ function SharedCourseDetails() {
                   {copy("Complete course: ", "الكورس بالكامل: ")}
                   {totals.price.toLocaleString("en-US")} {copy("EGP", "ج.م")} ·{" "}
                   {totals.hours} {copy("hours", "ساعة")} · {totals.sessions}{" "}
-                  {course.slug === "backend"
+                  {course.program
                     ? copy("sessions", "محاضرة")
                     : copy("weekly sessions", "محاضرة أسبوعية")}
+                  {course.sessionCountsProposed && (
+                    <> {copy("(proposed)", "(مقترح)")}</>
+                  )}
                 </p>
                 <p>
-                  {course.slug === "backend"
+                  {course.program
                     ? copy(
                         "Each session lasts two hours. Ask about available schedules and booking steps; an inquiry does not confirm a booking.",
                         "كل محاضرة ساعتين. اسألنا عن المواعيد المتاحة وخطوات الحجز؛ الاستفسار مش تأكيد للحجز.",
@@ -1374,11 +1408,11 @@ function SharedCourseDetails() {
                 },
                 {
                   Icon: CalendarDays,
-                  text: `${course.sessions} ${copy("Live interactive sessions / level", "محاضرات لايف تفاعلية لكل مستوى")}`,
+                  text: `${selectedSessions} ${copy("Live interactive sessions / selected level", "محاضرات لايف تفاعلية للمستوى المختار")}`,
                 },
                 {
                   Icon: Clock3,
-                  text: `${course.hours} ${copy("Intensive practice hours", "ساعات تدريب وتطبيق مكثف")}`,
+                  text: `${selectedHours} ${copy("Intensive practice hours", "ساعات تدريب وتطبيق مكثف")}`,
                 },
                 {
                   Icon: Radio,
@@ -1419,7 +1453,9 @@ function SharedCourseDetails() {
 
             <div className="enrollment-action-buttons">
               <ButtonLink to={enrollmentUrl}>
-                {copy("Enroll Now / Inquire", "سجّل الآن في الكورس")}
+                {course.inquiryLabel
+                  ? content(course.inquiryLabel)
+                  : copy("Enroll Now / Inquire", "سجّل الآن في الكورس")}
               </ButtonLink>
 
               <a

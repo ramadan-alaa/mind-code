@@ -38,7 +38,187 @@ const illustration = text(
   "تسلسل توضيحي؛ مش محرر مباشر ولا مشروع قابل للتشغيل هنا.",
 );
 
+// Examples stay inside the established editor banner; they do not run in the site.
+const pythonExample = (
+  fileName: string,
+  code: string[],
+  output: string[],
+  caption: Localized,
+): CodePreview => ({
+  kind: "code",
+  language: "python",
+  fileName,
+  code,
+  output,
+  caption,
+});
+
 export const coursePreviews: Record<string, CoursePreview[]> = {
+  "python-programming": [
+    pythonExample(
+      "fundamentals.py",
+      [
+        'score = "12"',
+        "total = int(score) + 3",
+        "if total >= 10:",
+        '    print("Goal reached:", total)',
+      ],
+      ["Goal reached: 15"],
+      text(
+        "Types, conversion and conditions in a small Python example.",
+        "مثال بايثون صغير على الأنواع والتحويل والشروط.",
+      ),
+    ),
+    pythonExample(
+      "practice.py",
+      [
+        "def passed(scores):",
+        "    return [score for score in scores if score >= 50]",
+        "",
+        "print(passed([42, 65, 81]))",
+      ],
+      ["[65, 81]"],
+      text(
+        "A function filters a list using a loop and a condition.",
+        "دالة بتفلتر قائمة باستخدام حلقة وشرط.",
+      ),
+    ),
+    pythonExample(
+      "records.py",
+      [
+        "import json",
+        "",
+        "class Record:",
+        "    def __init__(self, title):",
+        "        self.title = title",
+        "",
+        'record = Record("Practice")',
+        'print(json.dumps({"title": record.title}))',
+      ],
+      ['{"title": "Practice"}'],
+      text(
+        "A simple class and JSON serialization; an introductory OOP example.",
+        "Class بسيط وتحويل بيانات لـJSON؛ مثال تمهيدي على OOP.",
+      ),
+    ),
+  ],
+  "ai-machine-learning": [
+    pythonExample(
+      "labels.py",
+      [
+        'labels = ["cat", "dog", "cat"]',
+        'print("Training examples:", len(labels))',
+        'print("Classes:", sorted(set(labels)))',
+      ],
+      ["Training examples: 3", "Classes: ['cat', 'dog']"],
+      text(
+        "Illustrative labels for a classification dataset, not a trained model.",
+        "تصنيفات توضيحية لبيانات تدريب؛ ده مش نموذج مدرب.",
+      ),
+    ),
+    pythonExample(
+      "classifier.py",
+      [
+        "from sklearn.tree import DecisionTreeClassifier",
+        "",
+        "model = DecisionTreeClassifier(random_state=0)",
+        "model.fit([[0], [1], [8], [9]], [0, 0, 1, 1])",
+        "print(model.predict([[7]]).tolist())",
+      ],
+      ["[1]"],
+      text(
+        "A tiny decision tree example; requires Scikit-learn.",
+        "مثال صغير لشجرة قرار؛ محتاج مكتبة Scikit-learn.",
+      ),
+    ),
+    pythonExample(
+      "text_examples.py",
+      [
+        'texts = ["helpful lesson", "clear example"]',
+        "for text in texts:",
+        "    print(text.split())",
+      ],
+      ["['helpful', 'lesson']", "['clear', 'example']"],
+      text(
+        "Preparing short text examples for an NLP exercise.",
+        "تجهيز أمثلة نصية قصيرة لتدريب على NLP.",
+      ),
+    ),
+    pythonExample(
+      "chatbot.py",
+      [
+        "import streamlit as st",
+        "",
+        'st.title("Chatbot practice")',
+        'prompt = st.chat_input("Your question")',
+        "if prompt:",
+        '    st.write("Next: connect a guided AI API call.")',
+      ],
+      ["Illustrative Streamlit interface; run with streamlit run chatbot.py."],
+      text(
+        "An interface scaffold for the chatbot project; API integration is taught in the course.",
+        "هيكل واجهة لمشروع الشات بوت؛ ربط AI API جزء من المنهج.",
+      ),
+    ),
+  ],
+  "data-science-data-analysis": [
+    pythonExample(
+      "data_example.py",
+      [
+        'rows = [{"item": "Book", "count": 3},',
+        '        {"item": "Pen", "count": 8}]',
+        'for row in sorted(rows, key=lambda row: row["count"]):',
+        '    print(row["item"], row["count"])',
+      ],
+      ["Book 3", "Pen 8"],
+      text(
+        "Illustrative tabular data; level 1 practices sorting in Google Sheets.",
+        "مثال توضيحي لبيانات جدول؛ تطبيق الترتيب في المستوى الأول بيكون في Google Sheets.",
+      ),
+    ),
+    pythonExample(
+      "summary_example.py",
+      [
+        "values = [10, 20, 30]",
+        'print("Total:", sum(values))',
+        'print("Mean:", sum(values) / len(values))',
+      ],
+      ["Total: 60", "Mean: 20.0"],
+      text(
+        "A numeric summary illustration; level 2 uses Excel formulas and charts.",
+        "مثال توضيحي لملخص أرقام؛ المستوى الثاني بيستخدم معادلات Excel ورسومه البيانية.",
+      ),
+    ),
+    pythonExample(
+      "analysis.py",
+      [
+        "import pandas as pd",
+        "",
+        'data = pd.DataFrame({"score": [60, 80, 100]})',
+        'print("Mean:", data["score"].mean())',
+      ],
+      ["Mean: 80.0"],
+      text(
+        "A small DataFrame summary; requires Pandas.",
+        "ملخص صغير لجدول DataFrame؛ محتاج مكتبة Pandas.",
+      ),
+    ),
+    pythonExample(
+      "kpi_example.py",
+      [
+        "sales = [100, 150, 200]",
+        "target = 400",
+        "total = sum(sales)",
+        'print("Sales:", total)',
+        'print("Target met:", total >= target)',
+      ],
+      ["Sales: 450", "Target met: True"],
+      text(
+        "A KPI illustration; level 4 prepares data with SQL and Power Query and builds Power BI dashboards.",
+        "مثال توضيحي لمؤشر أداء؛ المستوى الرابع بيجهز البيانات بـSQL وPower Query ويبني لوحات Power BI.",
+      ),
+    ),
+  ],
   backend: [
     {
       kind: "code",

@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "responsiveCases": 128,
+  "inquiryHandoffs": 22,
+  "errors": [],
+  "overflow": [],
+  "accessibility": [],
+  "screenshots": [
+    "artifacts/learning-python-programming-en-390.png",
+    "artifacts/learning-ai-machine-learning-en-390.png",
+    "artifacts/learning-ai-machine-learning-level-3-en-390.png",
+    "artifacts/learning-data-science-data-analysis-en-390.png",
+    "artifacts/learning-python-programming-en-1440.png",
+    "artifacts/learning-ai-machine-learning-en-1440.png",
+    "artifacts/learning-ai-machine-learning-level-3-en-1440.png",
+    "artifacts/learning-data-science-data-analysis-en-1440.png",
+    "artifacts/learning-python-programming-ar-390.png",
+    "artifacts/learning-ai-machine-learning-ar-390.png",
+    "artifacts/learning-ai-machine-learning-level-3-ar-390.png",
+    "artifacts/learning-data-science-data-analysis-ar-390.png",
+    "artifacts/learning-python-programming-ar-1440.png",
+    "artifacts/learning-ai-machine-learning-ar-1440.png",
+    "artifacts/learning-ai-machine-learning-level-3-ar-1440.png",
+    "artifacts/learning-data-science-data-analysis-ar-1440.png"
+  ],
+  "preserved": [
+    "scratchjr",
+    "scratch",
+    "python",
+    "backend"
+  ]
+}

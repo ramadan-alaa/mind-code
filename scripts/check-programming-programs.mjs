@@ -98,8 +98,8 @@ try {
     courses: (await import("/src/data/courses.ts")).courses,
     academy: (await import("/src/config/academy.ts")).academy,
   }));
-  assert.equal(courses.length, 12);
-  assert.equal(new Set(courses.map((course) => course.slug)).size, 12);
+  assert.equal(courses.length, 15);
+  assert.equal(new Set(courses.map((course) => course.slug)).size, 15);
   assert.deepEqual(
     courses
       .slice(0, 8)
@@ -112,7 +112,7 @@ try {
       ["git-github", 700, 1000, 4, 8],
       ["tailwind-css", 900, 1100, 5, 10],
       ["typescript", 1200, 1400, 5, 10],
-      ["nextjs", 1600, 1800, 6, 12],
+      ["nextjs", 1400, 1600, 6, 12],
     ],
   );
   for (const [slug, price, originalPrice, sessions, hours] of expected) {
@@ -156,7 +156,7 @@ try {
         .filter((c) => c.program)
         .flatMap((c) => c.levels.map((level) => level.id)),
     ).size,
-    10,
+    21,
   );
 
   for (const lang of ["ar", "en"])
@@ -238,7 +238,12 @@ try {
               assert(
                 url.searchParams
                   .get("text")
-                  .includes(courses.find((c) => c.slug === slug).name),
+                  .replace(/[\u2066-\u2069]/g, "")
+                  .includes(
+                    courses.find((c) => c.slug === slug).localizedName?.[
+                      lang
+                    ] ?? courses.find((c) => c.slug === slug).name,
+                  ),
               );
               assert(
                 url.searchParams
@@ -370,7 +375,11 @@ try {
       assert(
         handoff.searchParams
           .get("text")
-          .includes(courses.find((c) => c.slug === slug).name),
+          .replace(/[\u2066-\u2069]/g, "")
+          .includes(
+            courses.find((c) => c.slug === slug).localizedName?.ar ??
+              courses.find((c) => c.slug === slug).name,
+          ),
       );
     }
   for (const theme of ["dark", "light"])

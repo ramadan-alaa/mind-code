@@ -437,7 +437,7 @@ export const professionalCourses: Course[] = [
   }),
   professionalCourse({
     slug: "nextjs",
-    oldPrice: 1800,
+    oldPrice: 1600,
     name: "Next.js",
     color: "#b5a3ef",
     symbol: "N",
@@ -464,7 +464,7 @@ export const professionalCourses: Course[] = [
       level(
         "next-1",
         l("Next.js Fundamentals", "أساسيات Next.js"),
-        1600,
+        1400,
         l(
           "Build a multi-page academy course catalog with dynamic course details.",
           "ابنِ دليل كورسات لأكاديمية متعدد الصفحات مع تفاصيل ديناميكية لكل كورس.",
@@ -538,7 +538,7 @@ export const professionalCourses: Course[] = [
       level(
         "next-2",
         l("Full-Stack Features in Next.js", "ميزات الويب المتكاملة في Next.js"),
-        1600,
+        1400,
         l(
           "Build a simple authenticated student portal with persistent enrollment data.",
           "ابنِ بوابة طلاب بسيطة بتسجيل دخول وبيانات تسجيل محفوظة.",
@@ -613,7 +613,7 @@ export const professionalCourses: Course[] = [
       level(
         "next-3",
         l("Professional Next.js & Deployment", "Next.js الاحترافي والنشر"),
-        1600,
+        1400,
         l(
           "Incrementally build and deploy an MVP learning platform with course catalogs, enrollment, authenticated student access, and a small instructor interface. Present the completed work in the final session.",
           "ابنِ تدريجيًا وانشر نسخة أولية محدودة من منصة تعلم تضم دليل كورسات وتسجيلًا ودخولًا محميًا للطلاب وواجهة مبسطة للمدرس. اعرض العمل المكتمل في المحاضرة الأخيرة.",

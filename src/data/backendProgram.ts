@@ -26,7 +26,8 @@ const level = (
   ...title,
   id: `backend-level-${number}`,
   slug: `level-${number}`,
-  price: 1800,
+  price: 1600,
+  oldPrice: 1800,
   hoursPerSession: 2,
   overview,
   prerequisites,
@@ -45,7 +46,8 @@ export const backendProgram: Course = {
   program: true,
   color: "#b5a3ef",
   symbol: "C#",
-  price: 1800,
+  price: 1600,
+  oldPrice: 1800,
   sessions: 6,
   hours: 12,
   difficulty: "beginner",
@@ -99,8 +101,8 @@ export const backendProgram: Course = {
     {
       q: text("What does the track cost?", "سعر المستوى والمسار كامل كام؟"),
       a: text(
-        "Each level costs 1,800 EGP per learner. All four levels cost 7,200 EGP for 24 sessions and 48 teaching hours. You can inquire about one level at a time.",
-        "كل مستوى بـ1,800 جنيه لكل طالب. الأربع مستويات بـ7,200 جنيه، بإجمالي ٢٤ محاضرة و٤٨ ساعة تدريس. تقدر تستفسر عن كل مستوى بشكل منفصل.",
+        "Each level costs 1,600 EGP per learner, reduced from 1,800 EGP. All four levels cost 6,400 EGP for 24 sessions and 48 teaching hours. You can inquire about one level at a time.",
+        "كل مستوى بـ1,600 جنيه لكل طالب، بدل 1,800 جنيه. الأربع مستويات بـ6,400 جنيه، بإجمالي ٢٤ محاضرة و٤٨ ساعة تدريس. تقدر تستفسر عن كل مستوى بشكل منفصل.",
       ),
     },
     {

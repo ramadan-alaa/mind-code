@@ -90,7 +90,9 @@ try {
     previews: (await import("/src/data/coursePreviews.ts")).coursePreviews,
     academy: (await import("/src/config/academy.ts")).academy,
   }));
-  const programs = courses.filter((c) => c.program);
+  const programs = courses.filter((c) =>
+    ["scratchjr", "scratch", "python", "backend"].includes(c.slug),
+  );
   assert.equal(programs.length, 4);
   assert.equal(
     programs.reduce((n, c) => n + c.levels.length, 0),
@@ -101,7 +103,7 @@ try {
     "7ee51b6ed8b5195ca206cd52b11426df01a50696eb56a470d23ab6baf64af7ee",
     "Unrelated courses must remain unchanged",
   );
-  const pricing = courses.map((c) => ({
+  const pricing = courses.slice(0, 12).map((c) => ({
     slug: c.slug,
     price: c.price,
     oldPrice: c.oldPrice,
@@ -131,11 +133,9 @@ try {
         " ",
       );
       await page.getByRole("textbox").fill(query);
-      const card = page
-        .locator(".course-card")
-        .filter({
-          has: page.locator(`.course-link[href="/courses/${course.slug}"]`),
-        });
+      const card = page.locator(".course-card").filter({
+        has: page.locator(`.course-link[href="/courses/${course.slug}"]`),
+      });
       await expect(card).toHaveCount(1);
       await expect(card.locator("p")).toHaveText(course.cardDescription[lang]);
       if (course.slug === "backend")

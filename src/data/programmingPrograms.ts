@@ -719,6 +719,10 @@ export const programmingPrograms: Course[] = [
   {
     slug: "python",
     name: "Python",
+    localizedName: {
+      en: "Introduction to Python",
+      ar: "مقدمة في بايثون",
+    },
     program: true,
     faq: [
       {

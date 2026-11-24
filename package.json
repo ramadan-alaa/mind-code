@@ -15,7 +15,8 @@
     "check:programs": "node scripts/check-programming-programs.mjs",
     "check:backend": "node scripts/check-backend-program.mjs",
     "check:bilingual": "node scripts/check-bilingual-programs.mjs",
-    "format": "prettier --write src scripts *.json *.ts *.js index.html README.md"
+    "format": "prettier --write src scripts *.json *.ts *.js index.html README.md",
+    "check:tracks": "node scripts/check-learning-tracks.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^6.0.2",

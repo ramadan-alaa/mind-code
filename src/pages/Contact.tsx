@@ -94,13 +94,19 @@ export default function Contact() {
     message: copy("Anything you’d like us to know?", "تحب تقولنا حاجة إضافية؟"),
   };
   const onSubmit = (data: Values) => {
+    const inquiryCourse = courses.find((course) => course.slug === data.course);
+    const inquiryLevel = inquiryCourse?.levels[Number(data.level) - 1];
     const values = {
       ...data,
       course: (() => {
         const course = courses.find((c) => c.slug === data.course);
         return course ? courseName(course) : data.course;
       })(),
-      level: `${copy("Level", "المستوى")} ${data.level}`,
+      level: `${copy("Level", "المستوى")} ${data.level}${
+        inquiryCourse?.overviewPage && inquiryLevel
+          ? ` — ${ar ? isolateTechnicalText(local(inquiryLevel)) : local(inquiryLevel)}`
+          : ""
+      }`,
       age:
         data.age === "under12"
           ? copy("Under 12", "أقل من ١٢")

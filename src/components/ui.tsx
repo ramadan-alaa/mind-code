@@ -16,6 +16,8 @@ import {
   Gamepad2,
   Terminal,
   Server,
+  BrainCircuit,
+  ChartNoAxesCombined,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { courseTotals, type Course, type Localized } from "../data/courses";
@@ -163,8 +165,12 @@ export function TechIcon({ course }: { course: Course }) {
         <Blocks aria-label="ScratchJr" size={28} />
       ) : course.slug === "scratch" ? (
         <Gamepad2 aria-label="Scratch" size={28} />
-      ) : course.slug === "python" ? (
+      ) : ["python", "python-programming"].includes(course.slug) ? (
         <Terminal aria-label="Python" size={28} />
+      ) : course.slug === "ai-machine-learning" ? (
+        <BrainCircuit aria-label="AI" size={28} />
+      ) : course.slug === "data-science-data-analysis" ? (
+        <ChartNoAxesCombined aria-label="Data" size={28} />
       ) : course.slug === "backend" ? (
         <Server aria-label="Back-End" size={28} />
       ) : course.slug === "git-github" ? (
@@ -179,7 +185,10 @@ export function TechIcon({ course }: { course: Course }) {
 }
 export function CourseCard({ course }: { course: Course }) {
   const { copy, t, local, courseName } = useCopy();
-  const totals = course.slug === "backend" ? courseTotals(course) : undefined;
+  const totals =
+    course.slug === "backend" || course.overviewPage
+      ? courseTotals(course)
+      : undefined;
   return (
     <Reveal className="course-card">
       <div className="course-top">
@@ -214,6 +223,9 @@ export function CourseCard({ course }: { course: Course }) {
           <span>
             <bdi>{totals?.sessions ?? course.sessions}</bdi>{" "}
             {copy("sessions", "محاضرات")}
+            {course.sessionCountsProposed && (
+              <> {copy("(proposed)", "(مقترح)")}</>
+            )}
             <small>
               {totals
                 ? copy("total", "إجمالي")
