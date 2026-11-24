@@ -285,6 +285,8 @@ function SharedCourseDetails() {
   const selectedHours = selectedLevel.sessions
     ? selectedSessions * (selectedLevel.hoursPerSession ?? 2)
     : course.hours;
+  const hasHours = (isTrackOverview ? totals.hours : selectedHours) > 0;
+  const hasTotalHours = totals.hours > 0;
   const overview = isTrackOverview
     ? course.description
     : (selectedLevel.overview ?? course.description);
@@ -306,16 +308,16 @@ function SharedCourseDetails() {
   const pageDescription = {
     en:
       isTrackOverview && course.overviewPage
-        ? `${overview.en} ${course.levels.length} levels, ${totals.sessions} proposed sessions. ${course.price.toLocaleString("en-US")} EGP per learner and level.`
+        ? `${overview.en} ${course.levels.length} levels, ${totals.sessions} ${course.sessionCountsProposed ? "proposed sessions" : "sessions"}. ${course.price.toLocaleString("en-US")} EGP per learner and level.`
         : isTrackOverview
           ? `Learn C# and ASP.NET Core backend development online: ${course.levels.length} levels, ${totals.sessions} sessions and ${totals.hours} hours. Each level costs ${course.price.toLocaleString("en-US")} EGP; the complete track costs ${totals.price.toLocaleString("en-US")} EGP.`
-          : `${overview.en} Level ${levelIndex + 1}: ${selectedLevel.en}, ${selectedSessions} ${course.sessionCountsProposed ? "proposed sessions" : "sessions"}, ${selectedHours} hours, ${selectedPrice.toLocaleString("en-US")} EGP per learner and level.`,
+          : `${overview.en} Level ${levelIndex + 1}: ${selectedLevel.en}, ${selectedSessions} ${course.sessionCountsProposed ? "proposed sessions" : "sessions"}${selectedHours > 0 ? `, ${selectedHours} hours` : ""}, ${selectedPrice.toLocaleString("en-US")} EGP per learner and level.`,
     ar: isolateTechnicalText(
       isTrackOverview && course.overviewPage
-        ? `${overview.ar} ${course.levels.length} مستويات، ${totals.sessions} محاضرة مقترحة. ${course.price.toLocaleString("en-US")} جنيه لكل طالب لكل مستوى.`
+        ? `${overview.ar} ${course.levels.length} مستويات، ${totals.sessions} ${course.sessionCountsProposed ? "محاضرة مقترحة" : "محاضرة"}. ${course.price.toLocaleString("en-US")} جنيه لكل طالب لكل مستوى.`
         : isTrackOverview
           ? `تعلم تطوير الـBack-End باستخدام C# وASP.NET Core أونلاين: ٤ مستويات، ${totals.sessions} محاضرة، ${totals.hours} ساعة. كل مستوى بـ${course.price.toLocaleString("en-US")} جنيه، والمسار بالكامل بـ${totals.price.toLocaleString("en-US")} جنيه.`
-          : `${overview.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${selectedSessions} ${course.sessionCountsProposed ? "محاضرات مقترحة" : "محاضرات"}، ${selectedHours} ساعات، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`,
+          : `${overview.ar} المستوى ${levelIndex + 1}: ${selectedLevel.ar}، ${selectedSessions} ${course.sessionCountsProposed ? "محاضرات مقترحة" : "محاضرات"}${selectedHours > 0 ? `، ${selectedHours} ساعات` : ""}، بسعر ${selectedPrice.toLocaleString("en-US")} جنيه للطالب للمستوى.`,
     ),
   };
   const enrollmentUrl = `/contact?course=${course.slug}&level=${levelIndex + 1}`;
@@ -771,23 +773,35 @@ function SharedCourseDetails() {
               label: isTrackOverview
                 ? copy("Total sessions", "إجمالي المحاضرات")
                 : t("sessions"),
-              sub: course.sessionCountsProposed
-                ? copy(
-                    "Proposed count · 2 hours per session",
-                    "عدد مقترح · ساعتين لكل محاضرة",
-                  )
-                : course.program
-                  ? copy("2 hours per session", "ساعتين لكل محاضرة")
-                  : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
+              sub: !hasHours
+                ? copy("Live online sessions", "محاضرات أونلاين مباشرة")
+                : course.sessionCountsProposed
+                  ? copy(
+                      "Proposed count · 2 hours per session",
+                      "عدد مقترح · ساعتين لكل محاضرة",
+                    )
+                  : course.program
+                    ? copy("2 hours per session", "ساعتين لكل محاضرة")
+                    : copy("2h weekly live", "محاضرة ساعتين / أسبوع"),
             },
-            {
-              Icon: Clock3,
-              value: `${isTrackOverview ? totals.hours : selectedHours}`,
-              label: isTrackOverview
-                ? copy("Total hours", "إجمالي الساعات")
-                : t("hours"),
-              sub: copy("Intensive learning", "تدريب وتطبيق مركز"),
-            },
+            hasHours
+              ? {
+                  Icon: Clock3,
+                  value: `${isTrackOverview ? totals.hours : selectedHours}`,
+                  label: isTrackOverview
+                    ? copy("Total hours", "إجمالي الساعات")
+                    : t("hours"),
+                  sub: copy("Intensive learning", "تدريب وتطبيق مركز"),
+                }
+              : {
+                  Icon: Radio,
+                  value: copy("Online", "أونلاين"),
+                  label: copy("Delivery format", "نظام الدراسة"),
+                  sub: copy(
+                    "Live interactive sessions",
+                    "محاضرات لايف تفاعلية",
+                  ),
+                },
             {
               Icon: Users,
               value: copy("Live Cohort", "مجموعات تفاعلية"),
@@ -920,10 +934,15 @@ function SharedCourseDetails() {
                   </p>
                 )}
                 <p>
-                  {copy(
-                    "Each two-hour session includes explanation, practice and instructor review.",
-                    "كل محاضرة ساعتين، فيها شرح وتطبيق ومراجعة مع المدرب.",
-                  )}
+                  {hasHours
+                    ? copy(
+                        "Each two-hour session includes explanation, practice and instructor review.",
+                        "كل محاضرة ساعتين، فيها شرح وتطبيق ومراجعة مع المدرب.",
+                      )
+                    : copy(
+                        "Each live online session includes explanation, practice and instructor review.",
+                        "كل محاضرة أونلاين مباشرة فيها شرح وتطبيق عملي ومراجعة مع المدرب.",
+                      )}
                 </p>
                 {course.slug === "scratchjr" && (
                   <p>
@@ -946,6 +965,23 @@ function SharedCourseDetails() {
                       rel="noopener noreferrer"
                     >
                       <bdi>W3Schools Python</bdi>
+                    </a>
+                    .
+                  </p>
+                )}
+                {course.slug === "cpp" && (
+                  <p>
+                    {copy(
+                      "Topic reference for this track:",
+                      "المرجع الأساسي لموضوعات المسار:",
+                    )}{" "}
+                    <a
+                      className="text-link"
+                      href="https://www.w3schools.com/cpp/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <bdi>W3Schools C++</bdi>
                     </a>
                     .
                   </p>
@@ -1377,7 +1413,12 @@ function SharedCourseDetails() {
                 <p>
                   {copy("Complete course: ", "الكورس بالكامل: ")}
                   {totals.price.toLocaleString("en-US")} {copy("EGP", "ج.م")} ·{" "}
-                  {totals.hours} {copy("hours", "ساعة")} · {totals.sessions}{" "}
+                  {hasTotalHours && (
+                    <>
+                      {totals.hours} {copy("hours", "ساعة")} ·{" "}
+                    </>
+                  )}
+                  {totals.sessions}{" "}
                   {course.program
                     ? copy("sessions", "محاضرة")
                     : copy("weekly sessions", "محاضرة أسبوعية")}
@@ -1387,10 +1428,15 @@ function SharedCourseDetails() {
                 </p>
                 <p>
                   {course.program
-                    ? copy(
-                        "Each session lasts two hours. Ask about available schedules and booking steps; an inquiry does not confirm a booking.",
-                        "كل محاضرة ساعتين. اسألنا عن المواعيد المتاحة وخطوات الحجز؛ الاستفسار مش تأكيد للحجز.",
-                      )
+                    ? hasTotalHours
+                      ? copy(
+                          "Each session lasts two hours. Ask about available schedules and booking steps; an inquiry does not confirm a booking.",
+                          "كل محاضرة ساعتين. اسألنا عن المواعيد المتاحة وخطوات الحجز؛ الاستفسار مش تأكيد للحجز.",
+                        )
+                      : copy(
+                          "Ask about available schedules and booking steps; an inquiry does not confirm a booking.",
+                          "اسألنا عن المواعيد المتاحة وخطوات الحجز؛ الاستفسار مش تأكيد للحجز.",
+                        )
                     : copy(
                         "One 2-hour session per week. Schedule on request.",
                         "محاضرة أسبوعيًا مدتها ساعتان. المواعيد حسب الطلب.",
@@ -1410,10 +1456,14 @@ function SharedCourseDetails() {
                   Icon: CalendarDays,
                   text: `${selectedSessions} ${copy("Live interactive sessions / selected level", "محاضرات لايف تفاعلية للمستوى المختار")}`,
                 },
-                {
-                  Icon: Clock3,
-                  text: `${selectedHours} ${copy("Intensive practice hours", "ساعات تدريب وتطبيق مكثف")}`,
-                },
+                ...(selectedHours > 0
+                  ? [
+                      {
+                        Icon: Clock3,
+                        text: `${selectedHours} ${copy("Intensive practice hours", "ساعات تدريب وتطبيق مكثف")}`,
+                      },
+                    ]
+                  : []),
                 {
                   Icon: Radio,
                   text: copy(

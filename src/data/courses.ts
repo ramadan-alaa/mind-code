@@ -1,6 +1,7 @@
 import { professionalCourses } from "./professionalCourses";
 import { programmingPrograms } from "./programmingPrograms";
 import { backendProgram } from "./backendProgram";
+import { cppProgram } from "./cppProgram";
 import { learningTracks } from "./learningTracks";
 export type Localized = { en: string; ar: string };
 export interface CourseSession {
@@ -202,6 +203,7 @@ export const courses: Course[] = [
   ...professionalCourses,
   ...programmingPrograms,
   backendProgram,
+  cppProgram,
   ...learningTracks,
 ];
 export const courseCategory = (course: Course): CourseCategory =>

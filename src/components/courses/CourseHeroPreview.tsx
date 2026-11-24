@@ -24,12 +24,20 @@ const icons = {
 };
 const keywords = new Set([
   "using",
+  "namespace",
   "string",
   "var",
   "int",
+  "double",
+  "char",
+  "bool",
+  "const",
+  "auto",
   "new",
   "await",
   "class",
+  "struct",
+  "public",
   "static",
   "void",
   "return",
@@ -37,10 +45,13 @@ const keywords = new Set([
   "if",
   "else",
   "for",
+  "while",
   "in",
   "import",
   "from",
   "as",
+  "true",
+  "false",
   "True",
   "False",
   "None",
@@ -64,7 +75,7 @@ function HighlightedLine({
       : token.startsWith("//") ||
           (language === "python" && token.startsWith("#"))
         ? "comment"
-        : keywords.has(token)
+        : (language === "cpp" && token.startsWith("#")) || keywords.has(token)
           ? "keyword"
           : /^\d+$/.test(token)
             ? "number"

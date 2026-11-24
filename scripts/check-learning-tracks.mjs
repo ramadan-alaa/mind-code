@@ -164,8 +164,8 @@ try {
       };
     },
   );
-  assert.equal(courses.length, 15);
-  assert.equal(new Set(courses.map((c) => c.slug)).size, 15);
+  assert.equal(courses.length, 16);
+  assert.equal(new Set(courses.map((c) => c.slug)).size, 16);
   const { programmingPrograms } = await originalModule(
     "src/data/programmingPrograms.ts",
   );
@@ -222,7 +222,7 @@ try {
   for (const lang of ["en", "ar"]) {
     await preference(lang);
     await goto("/courses");
-    await expect(page.locator(".course-card")).toHaveCount(15);
+    await expect(page.locator(".course-card")).toHaveCount(16);
     await expect(page.locator(".upcoming-card")).toHaveCount(0);
     await expect(card("python").locator("h3")).toHaveText(
       lang === "en" ? "Introduction to Python" : "مقدمة في بايثون",

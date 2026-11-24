@@ -100,8 +100,8 @@ try {
       academy: (await import("/src/config/academy.ts")).academy,
     };
   });
-  assert.equal(courses.length, 15);
-  assert.equal(new Set(courses.map((c) => c.slug)).size, 15);
+  assert.equal(courses.length, 16);
+  assert.equal(new Set(courses.map((c) => c.slug)).size, 16);
   // Eight unrelated course records remain unchanged; program translations are now intentional changes.
   assert.equal(
     createHash("sha256")

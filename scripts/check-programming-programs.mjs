@@ -98,8 +98,8 @@ try {
     courses: (await import("/src/data/courses.ts")).courses,
     academy: (await import("/src/config/academy.ts")).academy,
   }));
-  assert.equal(courses.length, 15);
-  assert.equal(new Set(courses.map((course) => course.slug)).size, 15);
+  assert.equal(courses.length, 16);
+  assert.equal(new Set(courses.map((course) => course.slug)).size, 16);
   assert.deepEqual(
     courses
       .slice(0, 8)
@@ -156,7 +156,7 @@ try {
         .filter((c) => c.program)
         .flatMap((c) => c.levels.map((level) => level.id)),
     ).size,
-    21,
+    24,
   );
 
   for (const lang of ["ar", "en"])

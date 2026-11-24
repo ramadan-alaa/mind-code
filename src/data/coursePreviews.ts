@@ -21,7 +21,7 @@ interface PreviewBase {
 }
 export interface CodePreview extends PreviewBase {
   kind: "code";
-  language: "csharp" | "python";
+  language: "csharp" | "python" | "cpp";
   code: string[];
   output: string[];
 }
@@ -218,6 +218,71 @@ export const coursePreviews: Record<string, CoursePreview[]> = {
         "مثال توضيحي لمؤشر أداء؛ المستوى الرابع بيجهز البيانات بـSQL وPower Query ويبني لوحات Power BI.",
       ),
     ),
+  ],
+  cpp: [
+    {
+      kind: "code",
+      language: "cpp",
+      fileName: "main.cpp",
+      code: [
+        "#include <iostream>",
+        "using namespace std;",
+        "",
+        "int main() {",
+        "    int score = 85;",
+        '    cout << (score >= 50 ? "Pass" : "Try again") << endl;',
+        "    return 0;",
+        "}",
+      ],
+      output: ["Pass"],
+      caption: text(
+        "A first C++ program using cout and a condition.",
+        "أول برنامج C++ باستخدام cout وشرط بسيط.",
+      ),
+    },
+    {
+      kind: "code",
+      language: "cpp",
+      fileName: "solve.cpp",
+      code: [
+        "#include <algorithm>",
+        "#include <iostream>",
+        "#include <vector>",
+        "using namespace std;",
+        "",
+        "int main() {",
+        "    vector<int> nums = {3, 1, 2};",
+        "    sort(nums.begin(), nums.end());",
+        '    for (int x : nums) cout << x << " ";',
+        "}",
+      ],
+      output: ["1 2 3"],
+      caption: text(
+        "Sorting a vector of numbers with std::sort.",
+        "ترتيب عناصر vector باستخدام std::sort.",
+      ),
+    },
+    {
+      kind: "code",
+      language: "cpp",
+      fileName: "grades.cpp",
+      code: [
+        "#include <iostream>",
+        "#include <string>",
+        "#include <unordered_map>",
+        "using namespace std;",
+        "",
+        "int main() {",
+        '    unordered_map<string, int> grades = {{"Mona", 92}, {"Ali", 88}};',
+        '    cout << "Mona: " << grades["Mona"] << endl;',
+        "}",
+      ],
+      output: ["Mona: 92"],
+      caption: text(
+        "Fast student grade lookup with unordered_map.",
+        "بحث سريع عن درجة طالب باستخدام unordered_map.",
+      ),
+    },
   ],
   backend: [
     {

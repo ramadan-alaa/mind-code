@@ -138,10 +138,12 @@ export default function CourseCurriculum({
                     </small>
                   </div>
                   <div className="curriculum-trigger-meta">
-                    <span className="curriculum-duration">
-                      <Clock3 size={13} />
-                      {hours} {copy("hrs", "ساعات")}
-                    </span>
+                    {hours > 0 && (
+                      <span className="curriculum-duration">
+                        <Clock3 size={13} />
+                        {hours} {copy("hrs", "ساعات")}
+                      </span>
+                    )}
                     <motion.span
                       className="curriculum-chevron"
                       animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -267,10 +269,12 @@ export default function CourseCurriculum({
                           <CalendarDays size={14} />
                           {sessions} {copy("live sessions", "محاضرات تفاعلية")}
                         </span>
-                        <span>
-                          <Clock3 size={14} />
-                          {hours} {copy("hours total", "إجمالي الساعات")}
-                        </span>
+                        {hours > 0 && (
+                          <span>
+                            <Clock3 size={14} />
+                            {hours} {copy("hours total", "إجمالي الساعات")}
+                          </span>
+                        )}
                         <span className="curriculum-price-tag">
                           {course.program &&
                             (level.oldPrice ?? course.oldPrice) && (

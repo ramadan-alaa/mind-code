@@ -16,13 +16,14 @@ import {
   Gamepad2,
   Terminal,
   Server,
+  Code2,
   BrainCircuit,
   ChartNoAxesCombined,
 } from "lucide-react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { courseTotals, type Course, type Localized } from "../data/courses";
 const technicalTerms =
-  /((?:\.[A-Za-z]|[A-Za-z])[A-Za-z0-9_+#./-]*(?:[ \t\u00a0]+[A-Za-z][A-Za-z0-9_+#./-]*)*)/g;
+  /((?:\.[A-Za-z]|\d+[A-Za-z]|[A-Za-z])(?:[A-Za-z0-9_+#./-]|::)*(?:[ \t\u00a0]+(?:\d+[A-Za-z]|[A-Za-z])(?:[A-Za-z0-9_+#./-]|::)*)*)/g;
 // Native options, metadata and messaging need the Unicode equivalent of <bdi>.
 export const isolateTechnicalText = (value: string) =>
   value.replace(technicalTerms, "\u2066$1\u2069");
@@ -173,6 +174,8 @@ export function TechIcon({ course }: { course: Course }) {
         <ChartNoAxesCombined aria-label="Data" size={28} />
       ) : course.slug === "backend" ? (
         <Server aria-label="Back-End" size={28} />
+      ) : course.slug === "cpp" ? (
+        <Code2 aria-label="C++" size={28} />
       ) : course.slug === "git-github" ? (
         <GitBranch aria-label="Git" size={28} />
       ) : course.slug === "tailwind-css" ? (
@@ -233,17 +236,20 @@ export function CourseCard({ course }: { course: Course }) {
             </small>
           </span>
         </span>
-        <span>
-          <Clock3 size={14} />
+        {(totals ? totals.hours > 0 : course.hours > 0) && (
           <span>
-            <bdi>{totals?.hours ?? course.hours}</bdi> {copy("hours", "ساعات")}
-            <small>
-              {totals
-                ? copy("total", "إجمالي")
-                : copy("per level", "لكل مستوى")}
-            </small>
+            <Clock3 size={14} />
+            <span>
+              <bdi>{totals?.hours ?? course.hours}</bdi>{" "}
+              {copy("hours", "ساعات")}
+              <small>
+                {totals
+                  ? copy("total", "إجمالي")
+                  : copy("per level", "لكل مستوى")}
+              </small>
+            </span>
           </span>
-        </span>
+        )}
       </div>
       <div className="course-price">
         <small>{copy("Starting at", "يبدأ من")}</small>
@@ -303,7 +309,9 @@ export function Accordion({
                 onClick={() => toggle(i)}
                 className="accordion-trigger"
               >
-                <span>{local(item.q)}</span>
+                <span>
+                  <TechnicalText>{local(item.q)}</TechnicalText>
+                </span>
                 <motion.span
                   className="accordion-icon"
                   animate={{ rotate: isOpen ? 45 : 0 }}
@@ -335,7 +343,9 @@ export function Accordion({
                   style={{ overflow: "hidden" }}
                 >
                   <div className="accordion-content">
-                    <p>{local(item.a)}</p>
+                    <p>
+                      <TechnicalText>{local(item.a)}</TechnicalText>
+                    </p>
                   </div>
                 </motion.div>
               )}
